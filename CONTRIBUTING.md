@@ -1,4 +1,4 @@
-# Contributing to Red Hat Developers
+# Contributing to Red Hat Developers!
 This document covers the various ways that a contribution can be made to Red Hat Developers.
 If you need any help understanding any of the steps, or you want to discuss you contribution, then [contact us](#contact).
 
