@@ -1,5 +1,4 @@
-FROM redhatdeveloper/rhdp-base
-MAINTAINER Jason Porter <jporter@redhat.com>
+FROM robpblake/rhdp-base
 
 EXPOSE 80
 ENV PATH=$PATH:/var/www/drupal/vendor/bin
@@ -8,10 +7,6 @@ WORKDIR /var/www/drupal
 RUN gem install asciidoctor
 
 COPY apache/drupal.conf /etc/httpd/conf.d/drupal.conf
-
-# Copy in scripts for start-up
-COPY drupal-filesystem/scripts/run-httpd.sh drupal-filesystem/scripts/phinx.rb /var/www/drupal/
-RUN chmod -v +x /var/www/drupal/run-httpd.sh
 
 # Copy in database migration files
 COPY drupal-filesystem/db-migrations /var/www/drupal/db-migrations
