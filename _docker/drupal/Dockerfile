@@ -6,6 +6,9 @@ CMD ["/var/www/drupal/run-httpd.sh"]
 WORKDIR /var/www/drupal
 RUN gem install asciidoctor
 
+# TBC - Managed Platform seems to suggest that the primary user in the container should be a member of the `root` group
+RUN usermod -a -G root apache
+
 COPY apache/drupal.conf /etc/httpd/conf.d/drupal.conf
 
 # Copy in database migration files
