@@ -1,9 +1,9 @@
 pipeline {
     agent any
     stages {
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                echo "Hello World!"
+                def drupalDockerImage = docker.build("redhatdeveloper/rhdp-drupal:${env.BUILD_ID}", "./_docker/drupal")
             }
         }
     }
