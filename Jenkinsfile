@@ -32,7 +32,7 @@ node {
         stage('Deploy Drupal') {
             openshift.withCluster() {
                 openshift.withProject() {
-                   def deploymentConfig = openshift.create(openshift.process('drupal-build-config', '-p', "DEPLOYMENT_ID=${env.BUILD_ID}"));
+                   def deploymentConfig = openshift.create(openshift.process('drupal-deployment-config', '-p', "DEPLOYMENT_ID=${env.BUILD_ID}"));
                    deploymentConfig.rollout.status()
                 }
             }
