@@ -69,6 +69,21 @@
         repo: 'https://github.com/redhat-developer/developers.redhat.com.git'
         version: 'master'
 
+    - name: Run npm install & npm run-script build for the rhd-frontend component
+      shell: 'npm install && npm run-script build'
+      args:
+        chdir: '/drupal-workspace/{{ drupal_deployment_dir }}/developers.redhat.com/_docker/drupal/drupal-filesystem/web/themes/custom/rhdp/rhd-frontend'
+
+    - name: Copy the built theme resources into the working directory for mounting into Drupal
+      copy:
+        src: '{{ item.src }}'
+        dest: '{{ item.dest }}'
+        mode: 0770
+        group: 'root'
+      with_items:
+        - { src: '/drupal-workspace/{{ drupal_deployment_dir }}/developers.redhat.com/_docker/drupal/drupal-filesystem/web/themes/custom/rhdp/rhd-frontend/rhd.min.js' , dest: '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/theme/rhd.min.js' }
+        - { src: '/drupal-workspace/{{ drupal_deployment_dir }}/developers.redhat.com/_docker/drupal/drupal-filesystem/web/themes/custom/rhdp/rhd-frontend/rhd.min.css' , dest: '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/theme/rhd.min.css' }
+
     - name: Template the rhd.settings.php for mounting into Drupal
       template:
         src: 'templates/{{ rhdp_environment }}/drupal/rhd.settings.php.j2'

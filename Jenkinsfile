@@ -1,5 +1,5 @@
 node {
-   timeout(60) {
+   timeout(30) {
 
         stage('Build Docker Image') {
                 openshift.withCluster() {

@@ -10,7 +10,7 @@ services:
 
   bootstrap_env:
     image: robpblake/rhdp-drupal
-    entrypoint: ["/bin/bash"]
+    command: ["/bin/bash"]
     working_dir: "/ansible"
     environment:
       - ANSIBLE_VAULT_PASSWORD_FILE=/credentials/ansible/password
