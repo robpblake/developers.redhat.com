@@ -70,7 +70,7 @@
         version: 'master'
 
     - name: Run npm install & npm run-script build for the rhd-frontend component
-      shell: 'npm install && npm run-script build'
+      shell: 'npm install --no-cache && npm run-script build'
       args:
         chdir: '/drupal-workspace/{{ drupal_deployment_dir }}/developers.redhat.com/_docker/drupal/drupal-filesystem/web/themes/custom/rhdp/rhd-frontend'
 
