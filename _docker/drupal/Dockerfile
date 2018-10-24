@@ -1,9 +1,3 @@
-FROM robpblake/rhdp-base as theme-build
-COPY drupal-filesystem/web/themes/custom/rhdp/rhd-frontend /rhd-frontend
-WORKDIR /rhd-frontend
-RUN npm install \
-    && npm run-script build
-
 FROM robpblake/rhdp-base
 CMD ["/var/www/drupal/run-httpd.sh"]
 EXPOSE 8080
@@ -29,11 +23,6 @@ COPY drupal-filesystem/web/themes/custom /var/www/drupal/web/themes/custom
 
 # Copy in the Drupal configuration
 COPY drupal-filesystem/web/config/sync /var/www/drupal/web/config/sync
-
-# Copy theme resources
-COPY --from=theme-build /rhd-frontend/rhd.min.css /var/www/drupal/web/themes/custom/rhdp/rhd-frontend/rhd.min.css
-COPY --from=theme-build /rhd-frontend/rhd.min.js /var/www/drupal/web/themes/custom/rhdp/rhd-frontend/rhd.min.js
-
 
 # Copy in scripts for start-up
 COPY drupal-filesystem/scripts/run-httpd.sh /var/www/drupal/run-httpd.sh
