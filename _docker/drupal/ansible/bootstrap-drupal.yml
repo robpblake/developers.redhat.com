@@ -1,0 +1,48 @@
+#
+# This playbook runs within the context of a fully bootstrapped Drupal container and performs any
+# Drupal specific deployment steps. In the context of RHDP, this is mostly running drush commands
+# and Phinx database migrations.
+#
+---
+- hosts: localhost
+  connection: local
+  become: no
+  #
+  # Please see and track: https://github.com/ansible/ansible/issues/43884
+  #
+  gather_subset: '!all'
+  vars:
+    rhdp_environment: 'prod'
+  vars_files:
+    - "vars/{{ rhdp_environment }}/drupal/vars.yml"
+    - "vars/{{ rhdp_environment }}/drupal/vault.yml"
+  tasks:
+    - name: Rebuild the Drupal Cache
+      shell: 'drush cr'
+      args:
+        chdir: '/var/www/drupal/web'
+
+    - name: Run Drupal Module Database Updates
+      shell: 'drush -y --entity-updates updb && drush cr'
+      args:
+        chdir: '/var/www/drupal/web'
+
+    - name: Apply Lightning Profile Updates
+      shell: 'drush update:lightning --no-interaction && drush cr'
+      args:
+        chdir: '/var/www/drupal/web'
+
+    - name: Import the latest Drupal configuration
+      shell: 'drush -y cim && drush cr'
+      args:
+        chdir: '/var/www/drupal/web'
+
+    - name: Run Phinx Database Migrations
+      shell: 'phinx migrate -e automated'
+      args:
+        chdir: '/var/www/drupal'
+      environment:
+        PHINX_DB_HOST: "{{ drupal_db_host }}"
+        PHINX_DB_NAME: "{{ drupal_deployment_dir }}"
+        PHINX_DB_USER: "{{ drupal_db_user }}"
+        PHINX_DB_PASSWORD: "{{ drupal_db_password }}"

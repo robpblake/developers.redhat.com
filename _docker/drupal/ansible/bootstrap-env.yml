@@ -1,0 +1,84 @@
+#
+# This playbook gets the environment ready to the point where we can start to bootstrap Drupal. It ensures
+# we have a working directory for our deployment, creates a database for the deployment and templates any
+# required files for mounting into the Drupal container.
+#
+---
+- hosts: localhost
+  connection: local
+  #
+  # Please see and track: https://github.com/ansible/ansible/issues/43884
+  #
+  gather_subset: '!all'
+  vars:
+    rhdp_environment: 'prod'
+  vars_files:
+    - 'vars/{{ rhdp_environment }}/drupal/vars.yml'
+    - 'vars/{{ rhdp_environment }}/drupal/vault.yml'
+  become: no
+  tasks:
+    - name: Create the working directory structure for this deployment of Drupal
+      file:
+        path: '{{ item }}'
+        group: 'root'
+        state: directory
+        recurse: yes
+        mode: 0775
+      with_items:
+        - '/drupal-workspace/{{ drupal_deployment_dir }}/seed'
+        - '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/theme'
+        - '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/files'
+        - '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/config'
+        - '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/credentials'
+
+# TODO - Discussion around what is the best mechanism for backups and env seeding. This part of the playbook uses git lfs to clone the most recent backup. Bit slow, can we use disk?
+
+#    - name: Install credentials for backup retrieval
+#      template:
+#        src: 'templates/{{ rhdp_environment }}/backups/netrc.j2'
+#        dest: '/root/.netrc'
+#
+#    - name: Retrieve the latest backup to seed the environment
+#      shell: 'git lfs install && git lfs clone https://github.com/redhat-developer/rhd-backups.git'
+#      args:
+#        chdir: '/drupal-workspace/{{ drupal_deployment_dir }}/seed'
+
+    - name: Create the database for this deployment
+      mysql_db:
+        name: '{{ drupal_deployment_dir }}'
+        state: present
+        login_password: '{{ drupal_db_password }}'
+        login_user: '{{ drupal_db_user }}'
+        login_host: '{{ drupal_db_host }}'
+
+    - name: Import the latest production database dump into the database of this deployment
+      mysql_db:
+        name: '{{ drupal_deployment_dir }}'
+        state: import
+        target: '/drupal-workspace/{{ drupal_deployment_dir }}/seed/db/drupal-db-sql.gz'
+        login_host: '{{ drupal_db_host }}'
+        login_user: '{{ drupal_db_user }}'
+        login_password: '{{ drupal_db_password }}'
+
+    - name: Clone the developers.redhat.com Git repository into the working directory of this deployment
+      git:
+        depth: 1
+        dest: '/drupal-workspace/{{ drupal_deployment_dir }}/developers.redhat.com'
+        force: yes
+        recursive: no
+        repo: 'https://github.com/redhat-developer/developers.redhat.com.git'
+        version: 'master'
+
+    - name: Template the rhd.settings.php for mounting into Drupal
+      template:
+        src: 'templates/{{ rhdp_environment }}/drupal/rhd.settings.php.j2'
+        dest: '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/credentials/rhd.settings.php'
+        group: 'root'
+        mode: 0770
+
+    - name: Template the rhd.settings.yml for mounting into Drupal
+      template:
+        src: 'templates/{{ rhdp_environment }}/drupal/rhd.settings.yml.j2'
+        dest: '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/credentials/rhd.settings.yml'
+        group: 'root'
+        mode: 0770

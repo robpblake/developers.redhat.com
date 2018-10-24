@@ -1,0 +1,25 @@
+<?php
+use Symfony\Component\Yaml\Yaml;
+
+if (file_exists(__DIR__ . '/rhd.settings.yml')) {
+  $yml_settings = Yaml::parse(file_get_contents(__DIR__ . "/rhd.settings.yml"));
+  $config['redhat_developers'] = $yml_settings;
+}
+
+$settings['hash_salt'] = 'xuAWpK0fmrZ6UGofFcP3lBkcmdpdumWMLqvCbnYjFY85OgRXYvEKPItJDH66vs4UpeYORQXLHQ';
+
+$databases['default']['default'] = array (
+  'database' => 'drupal_{{ drupal_deployment_id }}',
+  'username' => '{{ drupal_db_user }}',
+  'password' => '{{ drupal_db_password }}',
+  'prefix' => 'lightning_',
+  'host' => '{{ drupal_db_host }}',
+  'port' => '3306',
+  'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
+  'driver' => 'mysql',
+);
+
+$settings['install_profile'] = 'lightning';
+$config['automated_cron.settings']['interval'] = 0;
+/* Increase default memory settings for Drupal to 256 meg. Taken from: https://www.drupal.org/docs/7/managing-site-performance-and-scalability/changing-php-memory-limits */
+ini_set('memory_limit', '256M');

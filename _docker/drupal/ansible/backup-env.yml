@@ -1,0 +1,63 @@
+---
+- hosts: localhost
+  connection: local
+  become: no
+  #
+  # Please see and track: https://github.com/ansible/ansible/issues/43884
+  #
+  gather_subset: '!all'
+  vars:
+    rhdp_environment: 'prod'
+  vars_files:
+    - "vars/{{ rhdp_environment }}/drupal/vars.yml"
+    - "vars/{{ rhdp_environment }}/drupal/vault.yml"
+  tasks:
+    - name: Generate timestamp for run of backup
+      set_fact:
+        backup_dir: "{{ drupal_backup_dir }}/backup-{{ '%Y-%m-%d-%H-%M-%S' | strftime(ansible_date_time.epoch) }}"
+
+    - debug:
+        msg: "The backup directory will be '{{ backup_dir }}'"
+
+    - name: Determine the currently active deployment that should be backed up
+      shell: 'jq .deployments.current.deployment_id /deployments/deployments.json'
+      register: active_deployment
+
+    - set_fact:
+        active_deployment_id: "{{ active_deployment.stdout }}"
+
+    - debug:
+        msg: "There is no currently active deployment within the environment. Active deployment id is '{{ active_deployment_id }}'"
+      when: (active_deployment_id == '""') or (active_deployment_id == "-1")
+
+    - meta: end_play
+      when: (active_deployment_id == '""') or (active_deployment_id == "-1")
+
+    - name: Print the id of the deployment that will be backed up
+      debug:
+        msg: "The active deployment that will be backed up is deployment '{{ active_deployment_id }}'"
+
+    - name: Create the directory to store backup artifacts
+      file:
+        path: '{{ backup_dir }}'
+        group: 'root'
+        state: directory
+        recurse: yes
+        mode: 0770
+
+    - name: Perform a MySQL Dump of the database for the current deployment
+      mysql_db:
+        state: dump
+        name: "drupal_{{ active_deployment_id }}"
+        target: "{{ backup_dir }}/drupal-db.sql.gz"
+        single_transaction: yes
+        login_host: "{{ drupal_db_host }}"
+        login_user: "{{ drupal_db_user }}"
+        login_password: "{{ drupal_db_password }}"
+
+    #
+    # We should be using the archive module here, but the `exclude_path` directive doesn't work as expected:
+    # - https://github.com/ansible/ansible/issues/34316
+    #
+    - name: Perform a backup of the Drupal filesystem
+      shell: "tar -cvzf {{ backup_dir }}/drupal-filesystem.tar.gz --exclude='drupal/credentials' -C /drupal-workspace/drupal_{{ active_deployment_id }} drupal"

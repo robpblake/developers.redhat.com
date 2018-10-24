@@ -1,0 +1,6 @@
+drupal_db_host: '{{ vault_drupal_db_host }}'
+drupal_db_user: '{{ vault_drupal_db_user }}'
+drupal_db_password: '{{ vault_drupal_db_password }}'
+drupal_deployment_id: "{{ lookup('env', 'DEPLOYMENT_ID') }}"
+drupal_deployment_dir: 'drupal_{{ drupal_deployment_id }}'
+drupal_backup_dir: "/drupal-backups"

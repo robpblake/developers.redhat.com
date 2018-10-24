@@ -1,0 +1,34 @@
+---
+version: '3'
+services:
+  seed_env:
+    image: redhatdeveloper/rhdp-data-seed
+    environment:
+      - DEPLOYMENT_ID=1
+    volumes:
+      - drupal_workspace:/drupal-workspace
+
+  bootstrap_env:
+    image: robpblake/rhdp-drupal
+    entrypoint: ["/bin/bash"]
+    working_dir: "/ansible"
+    environment:
+      - ANSIBLE_VAULT_PASSWORD_FILE=/credentials/ansible/password
+      - DEPLOYMENT_ID=1
+    volumes:
+      - ../../:/ansible
+      - ../vault-password.txt:/credentials/ansible/password
+      - drupal_workspace:/drupal-workspace
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mariadb:10.3.9-bionic
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+    expose:
+      - 3306
+
+volumes:
+  drupal_workspace:
+    driver: local

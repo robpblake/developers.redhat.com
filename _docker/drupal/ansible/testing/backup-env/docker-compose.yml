@@ -1,0 +1,26 @@
+---
+version: '3'
+services:
+  backup_env:
+    image: robpblake/rhdp-drupal
+    entrypoint: ["/bin/bash"]
+    working_dir: "/ansible"
+    environment:
+      - ANSIBLE_VAULT_PASSWORD_FILE=/credentials/ansible/password
+    volumes:
+    - ../../:/ansible
+    - ../vault-password.txt:/credentials/ansible/password
+    - ./example-drupal-fs:/drupal-workspace/drupal_1
+    - ./deployments.json:/deployments/deployments.json
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mariadb:10.3.9-bionic
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=drupal_1
+    volumes:
+      - ./db-bootstrap.sql:/docker-entrypoint-initdb.d/db-bootstrap.sql
+    expose:
+      - 3306

@@ -33,5 +33,10 @@ RUN chmod +x /var/www/drupal/run-httpd.sh
 RUN chown -R root:0 /run/httpd \
     && chmod -R 770 /run/httpd
 
+# Copy in Ansible playbooks for provisioning
+COPY ansible /ansible
+RUN chgrp -R 0 /ansible \
+    && chmod -R g=u /ansible
+
 USER 1000
 ENV PATH=$PATH:/var/www/drupal/vendor/bin
