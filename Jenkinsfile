@@ -19,7 +19,7 @@ node {
         stage('Bootstrap the deployment') {
             openshift.withCluster() {
                 openshift.withProject() {
-                    def deployJob = openshift.create(openshift.process('drupal-deployment-job','-p', "DEPLOYMENT_ID=${env.BUILD_ID}"))
+                    def deployJob = openshift.create(openshift.process('drupal-deploy-job','-p', "DEPLOYMENT_ID=${env.BUILD_ID}"))
                     waitUntil() {
                         echo "Waiting for the completion of job 'drupal-deploy-job-${env.BUILD_ID}. This may take some time..."
                         sleep 15
