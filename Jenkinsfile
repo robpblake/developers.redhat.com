@@ -84,7 +84,7 @@ node {
         }
 
         stage("Acceptance Tests") {
-
+            echo "Here we run acceptance tests!"
         }
 
         stage("Promote To Live") {
