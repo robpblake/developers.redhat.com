@@ -94,9 +94,10 @@ node {
                     def previousServiceName = "drupal-http-${currentDeploymentId}"
                     def currentServiceName = "drupal-http-${deploymentId}"
 
-
+                    def configMap = openshift.selector('configmap/drupal-deployments').object()
                     configMap.data['PREVIOUS_DEPLOYMENT'] = "${currentDeploymentId}"
                     configMap.data['CURRENT_DEPLOYMENT'] = "${deploymentId}"
+                    openshift.apply(configMap)
 
 
                     echo "Updating 'previous' route to send traffic to service '${previousServiceName}'.."
