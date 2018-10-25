@@ -5,7 +5,7 @@ def deploymentId = null
 node {
    timeout(30) {
 
-        stage("Record attempted deployment") {
+        stage("Record Deployment") {
            openshift.withCluster() {
                openshift.withProject() {
                    def configMap = openshift.selector('configmap/drupal-deployments').object()
@@ -21,7 +21,7 @@ node {
         }
 
         stage('Build Docker Image') {
-            echo "Building the Docker image for this deployment. Image will be tagged as 'redhhatdeveloper/rhdp-drupal:${deploymentId}'..."
+            echo "Building the Docker image for this deployment. Image will be tagged as 'redhatdeveloper/rhdp-drupal:${deploymentId}'..."
                 openshift.withCluster() {
                     openshift.withProject() {
                         def buildConfig = openshift.create(openshift.process('drupal-docker-image-build','-p', "DEPLOYMENT_ID=${deploymentId}"))
@@ -36,7 +36,7 @@ node {
                 }
         }
 
-        stage('Bootstrap the deployment') {
+        stage('Bootstrap Deployment') {
             echo "Bootstrapping the environment for deployment '${deploymentId}'..."
             openshift.withCluster() {
                 openshift.withProject() {
@@ -60,7 +60,7 @@ node {
             }
         }
 
-        stage("Expose HTTP Endpoint") {
+        stage("Expose Endpoint") {
             echo "Exposing HTTP endpoint for Drupal deployment '${deploymentId}..."
             openshift.withCluster() {
                 openshift.withProject() {
@@ -83,12 +83,29 @@ node {
             }
         }
 
-        stage("Run acceptance tests") {
+        stage("Acceptance Tests") {
 
         }
 
-        stage("Promote deployment to live") {
+        stage("Promote To Live") {
+            openshift.withCluster() {
+                openshift.withProject() {
 
+                    def previousServiceName = "drupal-http-${currentDeploymentId}"
+                    def currentServiceName = "drupal-http-${deploymentId}"
+
+
+                    configMap.data['PREVIOUS_DEPLOYMENT'] = "${currentDeploymentId}"
+                    configMap.data['CURRENT_DEPLOYMENT'] = "${deploymentId}"
+
+
+                    echo "Updating 'previous' route to send traffic to service '${previousServiceName}'.."
+                    openshift.raw("patch route/previous -p '{\"spec\":{\"to\":{\"name\":\"${previousServiceName}\"}}}'")
+
+                    echo "Updating 'current' route to send traffic to service '${currentServiceName}'.."
+                    openshift.raw("patch route/current -p '{\"spec\":{\"to\":{\"name\":\"${currentServiceName}\"}}}'")
+                }
+            }
         }
    }
 }
