@@ -1,8 +1,27 @@
+def currentDeploymentId = null
+def previousDeploymentId = null
+def deploymentId = null
+
 node {
-   def deploymentId = "${env.BUILD_ID}"
    timeout(30) {
 
+        stage("Record attempted deployment") {
+           openshift.withCluster() {
+               openshift.withProject() {
+                   def configMap = openshift.selector('configmap/drupal-deployments').object()
+                   currentDeploymentId = configMap.data['CURRENT_DEPLOYMENT'].toInteger()
+                   previousDeploymentId = configMap.data['PREVIOUS_DEPLOYMENT'].toInteger()
+                   deploymentId = configMap.data['NEXT_DEPLOYMENT'].toInteger() + 1
+                   echo "The id of this deployment will be '${deploymentId}'."
+
+                   configMap.data['NEXT_DEPLOYMENT'] = "${deploymentId}"
+                   openshift.apply(configMap)
+               }
+           }
+        }
+
         stage('Build Docker Image') {
+            echo "Building the Docker image for this deployment. Image will be tagged as 'redhhatdeveloper/rhdp-drupal:${deploymentId}'..."
                 openshift.withCluster() {
                     openshift.withProject() {
                         def buildConfig = openshift.create(openshift.process('drupal-docker-image-build','-p', "DEPLOYMENT_ID=${deploymentId}"))
@@ -51,6 +70,25 @@ node {
                     openshift.create(openshift.process('drupal-http-service', '-p', "DEPLOYMENT_ID=${deploymentId}"));
                 }
             }
+        }
+
+
+        stage("Update 'next' route") {
+            openshift.withCluster() {
+               openshift.withProject() {
+                        def nextServiceName = "drupal-http-${deploymentId}"
+                        echo "Updating 'next' route to send traffic to service '${nextServiceName}'.."
+                        openshift.raw("patch route/next -p '{\"spec\":{\"to\":{\"name\":\"${nextServiceName}\"}}}'")
+               }
+            }
+        }
+
+        stage("Run acceptance tests") {
+
+        }
+
+        stage("Promote deployment to live") {
+
         }
    }
 }
