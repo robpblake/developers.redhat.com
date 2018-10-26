@@ -24,7 +24,7 @@ node {
             echo "Building the Docker image for this deployment. Image will be tagged as 'redhatdeveloper/rhdp-drupal:${deploymentId}'..."
                 openshift.withCluster() {
                     openshift.withProject() {
-                        def buildConfig = openshift.create(openshift.process(readFile(file:'openshift/docker-image-buid.yml')),'-p', "DEPLOYMENT_ID=${deploymentId}"))
+                        def buildConfig = openshift.create(openshift.process(readFile(file:'openshift/docker-image-buid.yml'),'-p', "DEPLOYMENT_ID=${deploymentId}"))
                         def build = buildConfig.startBuild()
                         build.untilEach(1) {
                             echo "Waiting for build of Docker Image 'redhatdeveloper/rhdp-drupal:${deploymentId} to complete..."
@@ -40,7 +40,7 @@ node {
             echo "Bootstrapping the environment for deployment '${deploymentId}'..."
             openshift.withCluster() {
                 openshift.withProject() {
-                    def deployJob = openshift.create(openshift.process(readFile(file:'openshift/drupal-deployment-job.yml')),'-p', "DEPLOYMENT_ID=${deploymentId}"))
+                    def deployJob = openshift.create(openshift.process(readFile(file:'openshift/drupal-deployment-job.yml'),'-p', "DEPLOYMENT_ID=${deploymentId}"))
                     waitUntil() {
                         echo "Waiting for the completion of job 'drupal-deployment-job-${deploymentId}. This may take some time..."
                         sleep 15
@@ -54,7 +54,7 @@ node {
             echo "Deploying Drupal for deployment '${deploymentId}'..."
             openshift.withCluster() {
                 openshift.withProject() {
-                def deploymentConfig = openshift.create(openshift.process(readFile(file:'openshift/drupal-deployment-config')), '-p', "DEPLOYMENT_ID=${deploymentId}"));
+                def deploymentConfig = openshift.create(openshift.process(readFile(file:'openshift/drupal-deployment-config'), '-p', "DEPLOYMENT_ID=${deploymentId}"));
                    deploymentConfig.rollout().status()
                 }
             }
@@ -67,7 +67,7 @@ node {
                     /*
                         This should be using openshift.verifyService(), but it's not in the plugin version installed here.
                     */
-                    openshift.create(openshift.process(readFile(file:'openshift/drupal-http-service.yml')), '-p', "DEPLOYMENT_ID=${deploymentId}"));
+                    openshift.create(openshift.process(readFile(file:'openshift/drupal-http-service.yml'), '-p', "DEPLOYMENT_ID=${deploymentId}"));
                 }
             }
         }
