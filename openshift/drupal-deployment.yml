@@ -13,7 +13,7 @@ parameters:
 - name: DEPLOYMENT_ID
   description: "The id of Drupal deployment that we are creating."
   required: true
-- name: IMAGE_STREAM:
+- name: IMAGE_STREAM
   description: "The Image Stream to pull the Drupal Docker Image from"
   required: true
 objects:
