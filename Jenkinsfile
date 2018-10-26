@@ -28,7 +28,7 @@ node {
             echo "Building the Docker image for this deployment. Image will be tagged as 'redhatdeveloper/rhdp-drupal:${deploymentId}'..."
                 openshift.withCluster() {
                     openshift.withProject() {
-                        def buildConfig = openshift.create(openshift.process(readFile(file:'openshift/docker-image-buid.yml'),'-p', "DEPLOYMENT_ID=${deploymentId}"))
+                        def buildConfig = openshift.create(openshift.process(readFile(file:'openshift/docker-image-build.yml'),'-p', "DEPLOYMENT_ID=${deploymentId}"))
                         def build = buildConfig.startBuild()
                         build.untilEach(1) {
                             echo "Waiting for build of Docker Image 'redhatdeveloper/rhdp-drupal:${deploymentId} to complete..."
