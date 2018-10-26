@@ -5,6 +5,10 @@ def deploymentId = null
 node {
    timeout(30) {
 
+        stage("Checkout SCM") {
+            checkout scm
+        }
+
         stage("Record Deployment") {
            openshift.withCluster() {
                openshift.withProject() {
