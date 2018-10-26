@@ -30,7 +30,7 @@ node {
                 openshift.withCluster() {
                     openshift.withProject() {
 
-                        def buildConfig = openshift.create(openshift.process(readFile(file:'openshift/docker-image-build.yml'),'-p', "DEPLOYMENT_ID=${deploymentId}""))
+                        def buildConfig = openshift.create(openshift.process(readFile(file:'openshift/docker-image-build.yml'),'-p', "DEPLOYMENT_ID=${deploymentId}"))
                         def build = buildConfig.startBuild()
                         build.untilEach(1) {
                             echo "Waiting for build of Docker Image 'redhatdeveloper/rhdp-drupal:${deploymentId} to complete..."
@@ -68,7 +68,7 @@ node {
             echo "Deploying Drupal for deployment '${deploymentId}'..."
             openshift.withCluster() {
                 openshift.withProject() {
-                def deploymentConfig = openshift.create(openshift.process(readFile(file:'openshift/drupal-deployment.yml'), '-p', "DEPLOYMENT_ID=${deploymentId}", , "IMAGE_STREAM=${internalDockerRegistry}));
+                def deploymentConfig = openshift.create(openshift.process(readFile(file:'openshift/drupal-deployment.yml'), '-p', "DEPLOYMENT_ID=${deploymentId}", , "IMAGE_STREAM=${internalDockerRegistry}"));
                    deploymentConfig.rollout().status()
                 }
             }
