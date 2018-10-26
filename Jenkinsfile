@@ -14,12 +14,12 @@ node {
            openshift.withCluster() {
                openshift.withProject() {
                    def configMap = openshift.selector('configmap/drupal-deployments').object()
-                   currentDeploymentId = configMap.data['CURRENT_DEPLOYMENT'].toInteger()
-                   previousDeploymentId = configMap.data['PREVIOUS_DEPLOYMENT'].toInteger()
-                   deploymentId = configMap.data['NEXT_DEPLOYMENT'].toInteger() + 1
+                   currentDeploymentId = configMap.data['CURRENT_DEPLOYMENT_ID'].toInteger()
+                   previousDeploymentId = configMap.data['PREVIOUS_DEPLOYMENT_ID'].toInteger()
+                   deploymentId = configMap.data['NEXT_DEPLOYMENT_ID'].toInteger() + 1
                    echo "The id of this deployment will be '${deploymentId}'."
 
-                   configMap.data['NEXT_DEPLOYMENT'] = "${deploymentId}"
+                   configMap.data['NEXT_DEPLOYMENT_ID'] = "${deploymentId}"
                    openshift.apply(configMap)
                }
            }
@@ -109,8 +109,8 @@ node {
                     def currentServiceName = "drupal-http-${deploymentId}"
 
                     def configMap = openshift.selector('configmap/drupal-deployments').object()
-                    configMap.data['PREVIOUS_DEPLOYMENT'] = "${currentDeploymentId}"
-                    configMap.data['CURRENT_DEPLOYMENT'] = "${deploymentId}"
+                    configMap.data['PREVIOUS_DEPLOYMENT_ID'] = "${currentDeploymentId}"
+                    configMap.data['CURRENT_DEPLOYMENT_ID'] = "${deploymentId}"
                     openshift.apply(configMap)
 
 
