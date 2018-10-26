@@ -7,6 +7,8 @@ metadata:
     openshift.io/display-name: "Template for BuildConfig for the Docker Image build of Drupal."
     description: "Creates a BuildConfig for building the Drupal Docker Image."
     iconClass: icon-drupal
+labels:
+  drupal-deployment-id: ${DEPLOYMENT_ID}
 parameters:
 - name: DRUPAL_GIT_REPOSITORY
   description: "The FQDN URL of the Git repository to use as source for building Drupal images for this environment."
