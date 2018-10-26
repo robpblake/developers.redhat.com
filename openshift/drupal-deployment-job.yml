@@ -14,6 +14,9 @@ parameters:
   description: "The id of Drupal deployment that we are executing this job for."
   displayName: "Deployment Id"
   required: true
+- name: IMAGE_STREAM
+  description: "The Image Stream to pull the Drupal Docker Image from"
+  required: true
 objects:
 - apiVersion: batch/v1
   kind: Job
@@ -35,7 +38,7 @@ objects:
           volumeMounts:
           - name: drupal-workspace
             mountPath: /drupal-workspace
-        - image: redhatdeveloper/rhdp-drupal:${DEPLOYMENT_ID}
+        - image: ${IMAGE_STREAM}:${DEPLOYMENT_ID}
           imagePullPolicy: IfNotPresent
           name: rhdp-bootstrap-env
           env:
@@ -47,7 +50,7 @@ objects:
             mountPath: /drupal-workspace
           - name: ansible-vault
             mountPath: /credentials/ansible
-        - image: redhatdeveloper/rhdp-drupal:${DEPLOYMENT_ID}
+        - image: ${IMAGE_STREAM}:${DEPLOYMENT_ID}
           imagePullPolicy: IfNotPresent
           name: rhdp-bootstrap-drupal
           env:
@@ -70,7 +73,7 @@ objects:
           - name: ansible-vault
             mountPath: /credentials/ansible
         containers:
-        - image: redhatdeveloper/rhdp-drupal:${DEPLOYMENT_ID}
+        - image: ${IMAGE_STREAM}:${DEPLOYMENT_ID}
           name: rhdp-env-create-complete
           env:
           - name: DEPLOYMENT_ID

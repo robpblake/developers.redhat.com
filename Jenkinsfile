@@ -1,6 +1,7 @@
 def currentDeploymentId = null
 def previousDeploymentId = null
 def deploymentId = null
+def internalDockerRegistry = null
 
 node {
    timeout(30) {
@@ -29,14 +30,7 @@ node {
                 openshift.withCluster() {
                     openshift.withProject() {
 
-                        /*
-                            I see no way of being able to reference an image from an ImageStream in a DeploymentConfig without
-                            having automatic build triggers.
-                        */
-                        def imageStream = openshift.selector("is/rhdp-drupal")
-                        def internalDockerRegistry = imageStream.object().status['dockerImageRepository']
-
-                        def buildConfig = openshift.create(openshift.process(readFile(file:'openshift/docker-image-build.yml'),'-p', "DEPLOYMENT_ID=${deploymentId}", "IMAGE_STREAM=${internalDockerRegistry}"))
+                        def buildConfig = openshift.create(openshift.process(readFile(file:'openshift/docker-image-build.yml'),'-p', "DEPLOYMENT_ID=${deploymentId}""))
                         def build = buildConfig.startBuild()
                         build.untilEach(1) {
                             echo "Waiting for build of Docker Image 'redhatdeveloper/rhdp-drupal:${deploymentId} to complete..."
@@ -52,7 +46,15 @@ node {
             echo "Bootstrapping the environment for deployment '${deploymentId}'..."
             openshift.withCluster() {
                 openshift.withProject() {
-                    def deployJob = openshift.create(openshift.process(readFile(file:'openshift/drupal-deployment-job.yml'),'-p', "DEPLOYMENT_ID=${deploymentId}"))
+
+                /*
+                    I see no way of being able to reference an image from an ImageStream in a DeploymentConfig without
+                    having automatic build triggers.
+                */
+                    def imageStream = openshift.selector("is/rhdp-drupal")
+                    internalDockerRegistry = imageStream.object().status['dockerImageRepository']
+
+                    def deployJob = openshift.create(openshift.process(readFile(file:'openshift/drupal-deployment-job.yml'),'-p', "DEPLOYMENT_ID=${deploymentId}", "IMAGE_STREAM=${internalDockerRegistry}"))
                     waitUntil() {
                         echo "Waiting for the completion of job 'drupal-deployment-job-${deploymentId}. This may take some time..."
                         sleep 15
@@ -66,7 +68,7 @@ node {
             echo "Deploying Drupal for deployment '${deploymentId}'..."
             openshift.withCluster() {
                 openshift.withProject() {
-                def deploymentConfig = openshift.create(openshift.process(readFile(file:'openshift/drupal-deployment.yml'), '-p', "DEPLOYMENT_ID=${deploymentId}"));
+                def deploymentConfig = openshift.create(openshift.process(readFile(file:'openshift/drupal-deployment.yml'), '-p', "DEPLOYMENT_ID=${deploymentId}", , "IMAGE_STREAM=${internalDockerRegistry}));
                    deploymentConfig.rollout().status()
                 }
             }
