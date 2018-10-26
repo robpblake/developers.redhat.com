@@ -58,7 +58,7 @@ node {
             echo "Deploying Drupal for deployment '${deploymentId}'..."
             openshift.withCluster() {
                 openshift.withProject() {
-                def deploymentConfig = openshift.create(openshift.process(readFile(file:'openshift/drupal-deployment-config'), '-p', "DEPLOYMENT_ID=${deploymentId}"));
+                def deploymentConfig = openshift.create(openshift.process(readFile(file:'openshift/drupal-deployment.yml'), '-p', "DEPLOYMENT_ID=${deploymentId}"));
                    deploymentConfig.rollout().status()
                 }
             }
