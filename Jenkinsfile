@@ -28,7 +28,15 @@ node {
             echo "Building the Docker image for this deployment. Image will be tagged as 'redhatdeveloper/rhdp-drupal:${deploymentId}'..."
                 openshift.withCluster() {
                     openshift.withProject() {
-                        def buildConfig = openshift.create(openshift.process(readFile(file:'openshift/docker-image-build.yml'),'-p', "DEPLOYMENT_ID=${deploymentId}"))
+
+                        /*
+                            I see no way of being able to reference an image from an ImageStream in a DeploymentConfig without
+                            having automatic build triggers.
+                        */
+                        def imageStream = openshift.selector("is/rhdp-drupal")
+                        def internalDockerRegistry = imageStream.object().status['dockerImageRepository']
+
+                        def buildConfig = openshift.create(openshift.process(readFile(file:'openshift/docker-image-build.yml'),'-p', "DEPLOYMENT_ID=${deploymentId}", "IMAGE_STREAM=${internalDockerRegistry}"))
                         def build = buildConfig.startBuild()
                         build.untilEach(1) {
                             echo "Waiting for build of Docker Image 'redhatdeveloper/rhdp-drupal:${deploymentId} to complete..."

@@ -13,6 +13,9 @@ parameters:
 - name: DEPLOYMENT_ID
   description: "The id of Drupal deployment that we are creating."
   required: true
+- name: IMAGE_STREAM:
+  description: "The Image Stream to fetch the container from"
+  required: true
 objects:
 - apiVersion: v1
   kind: DeploymentConfig
@@ -31,7 +34,7 @@ objects:
       spec:
         containers:
         - name: "drupal-${DEPLOYMENT_ID}"
-          image: redhatdeveloper/rhdp-drupal:${DEPLOYMENT_ID}
+          image: ${IMAGE_STREAM}:${DEPLOYMENT_ID}
           command: ['/uid_entrypoint.sh']
           args: ['/var/www/drupal/run-httpd.sh']
           terminationMessagePath: /dev/termination-log

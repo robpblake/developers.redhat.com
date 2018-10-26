@@ -32,10 +32,8 @@ objects:
         ref: ${DRUPAL_GIT_REPOSITORY_BRANCH}
     output:
       to:
-        kind: DockerImage
-        name: redhatdeveloper/rhdp-drupal:${DEPLOYMENT_ID}
-      pushSecret:
-        name: "dockerhub"
+        kind: ImageStreamTag
+        name: rhdp-drupal:${DEPLOYMENT_ID}
     strategy:
       type: Docker
       dockerStrategy:
