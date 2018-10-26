@@ -1,0 +1,31 @@
+#
+# Creates and exposes a HTTP endpoint that is bound to our Drupal deployment
+#
+---
+apiVersion: v1
+kind: Template
+metadata:
+  name: drupal-http-service
+  annotations:
+    openshift.io/display-name: "Template for the HTTP service to expose a deployment of Drupal."
+    description: "Exposes a HTTP service for a specific deployment of Drupal."
+    iconClass: icon-drupal
+labels:
+  drupal-deployment-id: "${DEPLOYMENT_ID}"
+parameters:
+- name: DEPLOYMENT_ID
+  description: "The id of Drupal deployment that we are creating this service for."
+  required: true
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: drupal-http-${DEPLOYMENT_ID}
+  spec:
+    ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+    selector:
+      drupal-deployment-id: ${DEPLOYMENT_ID}
+    type: LoadBalancer

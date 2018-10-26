@@ -1,0 +1,42 @@
+---
+apiVersion: v1
+kind: Template
+metadata:
+  name: drupal-docker-build
+  annotations:
+    openshift.io/display-name: "Template for BuildConfig for the Docker Image build of Drupal."
+    description: "Creates a BuildConfig for building the Drupal Docker Image."
+    iconClass: icon-drupal
+parameters:
+- name: DRUPAL_GIT_REPOSITORY
+  description: "The FQDN URL of the Git repository to use as source for building Drupal images for this environment."
+  required: true
+  value: 'https://github.com/robpblake/developers.redhat.com.git'
+- name: DRUPAL_GIT_REPOSITORY_BRANCH
+  description: "The branch of the above Git repository that should be built and deployed in this environment (default: master)."
+  required: true
+  value: 'managed-platform'
+- name: DEPLOYMENT_ID
+  description: "The id of the deployment that this image is being built for"
+  required: true
+objects:
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: drupal-for-deployment-${DEPLOYMENT_ID}
+  spec:
+    source:
+      contextDir: _docker/drupal
+      git:
+        uri: ${DRUPAL_GIT_REPOSITORY}
+        ref: ${DRUPAL_GIT_REPOSITORY_BRANCH}
+    output:
+      to:
+        kind: DockerImage
+        name: redhatdeveloper/rhdp-drupal:${DEPLOYMENT_ID}
+      pushSecret:
+        name: "dockerhub"
+    strategy:
+      type: Docker
+      dockerStrategy:
+        dockerfilePath: Dockerfile
