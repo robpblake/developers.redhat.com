@@ -44,11 +44,11 @@ objects:
           env:
           - name: DEPLOYMENT_ID
             value: '${DEPLOYMENT_ID}'
-          args: ['/usr/bin/ansible-playbook', '--vault-password-file=/credentials/ansible/password', '/ansible/bootstrap-env.yml']
+          args: ['/usr/bin/ansible-playbook', '/ansible/bootstrap-env.yml']
           volumeMounts:
           - name: drupal-workspace
             mountPath: /drupal-workspace
-          - name: ansible-vault
+          - name: environment-secrets
             mountPath: /credentials/ansible
         - image: ${IMAGE_STREAM}:${DEPLOYMENT_ID}
           imagePullPolicy: IfNotPresent
@@ -56,7 +56,7 @@ objects:
           env:
           - name: DEPLOYMENT_ID
             value: '${DEPLOYMENT_ID}'
-          args: ['/usr/bin/ansible-playbook', '--vault-password-file=/credentials/ansible/password','/ansible/bootstrap-drupal.yml']
+          args: ['/usr/bin/ansible-playbook','/ansible/bootstrap-drupal.yml']
           volumeMounts:
           - name: drupal-workspace
             mountPath: /var/www/drupal/web/sites/default/rhd.settings.yml
@@ -70,7 +70,7 @@ objects:
           - name: drupal-workspace
             mountPath: /var/www/drupal/web/config/active
             subPath: drupal_${DEPLOYMENT_ID}/drupal/config/active
-          - name: ansible-vault
+          - name: environment-secrets
             mountPath: /credentials/ansible
         containers:
         - image: ${IMAGE_STREAM}:${DEPLOYMENT_ID}
@@ -84,7 +84,7 @@ objects:
         - name: drupal-workspace
           persistentVolumeClaim:
             claimName: drupal-workspace
-        - name: ansible-vault
+        - name: environment-secrets
           secret:
-            secretName: ansible-vault
+            secretName: environment-secrets
             optional: false

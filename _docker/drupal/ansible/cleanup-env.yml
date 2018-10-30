@@ -2,17 +2,12 @@
 - hosts: localhost
   connection: local
   become: no
-  #
-  # Please see and track: https://github.com/ansible/ansible/issues/43884
-  #
-  gather_subset: '!all'
   vars:
-    rhdp_environment: 'prod'
     deployment_ids_to_reclaim: []
     deployment_dirs_to_reclaim: []
   vars_files:
+    - "/credentials/ansible/env.yml"
     - "vars/{{ rhdp_environment }}/drupal/vars.yml"
-    - "vars/{{ rhdp_environment }}/drupal/vault.yml"
   tasks:
     - name: Generate the list of deployments that should not be reclaimed
       shell: "jq '.deployments.current.deployment_id, .deployments.next.deployment_id, .deployments.previous.deployment_id' /deployments/deployments.json"

@@ -10,11 +10,9 @@ services:
     image: robpblake/rhdp-drupal
     entrypoint: ["/bin/bash"]
     working_dir: "/ansible"
-    environment:
-    - ANSIBLE_VAULT_PASSWORD_FILE=/credentials/ansible/password
     volumes:
     - ../../:/ansible
-    - ../vault-password.txt:/credentials/ansible/password
+    - ../env.yml:/credentials/ansible/env.yml
     - ./deployments.json:/deployments/deployments.json
     - drupal_workspace:/drupal-workspace
     depends_on:

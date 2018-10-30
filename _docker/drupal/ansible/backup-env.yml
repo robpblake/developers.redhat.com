@@ -2,15 +2,9 @@
 - hosts: localhost
   connection: local
   become: no
-  #
-  # Please see and track: https://github.com/ansible/ansible/issues/43884
-  #
-  gather_subset: '!all'
-  vars:
-    rhdp_environment: 'prod'
   vars_files:
+    - "/credentials/ansible/env.yml"
     - "vars/{{ rhdp_environment }}/drupal/vars.yml"
-    - "vars/{{ rhdp_environment }}/drupal/vault.yml"
   tasks:
     - name: Generate timestamp for run of backup
       set_fact:

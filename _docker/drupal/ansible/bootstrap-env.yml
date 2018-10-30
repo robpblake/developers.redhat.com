@@ -6,15 +6,9 @@
 ---
 - hosts: localhost
   connection: local
-  #
-  # Please see and track: https://github.com/ansible/ansible/issues/43884
-  #
-  gather_subset: '!all'
-  vars:
-    rhdp_environment: 'prod'
   vars_files:
+    - "/credentials/ansible/env.yml"
     - 'vars/{{ rhdp_environment }}/drupal/vars.yml'
-    - 'vars/{{ rhdp_environment }}/drupal/vault.yml'
   become: no
   tasks:
     - name: Create the working directory structure for this deployment of Drupal
@@ -66,8 +60,8 @@
         dest: '/drupal-workspace/{{ drupal_deployment_dir }}/developers.redhat.com'
         force: yes
         recursive: no
-        repo: 'https://github.com/redhat-developer/developers.redhat.com.git'
-        version: 'master'
+        repo: '{{ rhdp_git_repo }}'
+        version: '{{ rhdp_git_branch }}'
 
     - name: Run npm install & npm run-script build for the rhd-frontend component
       shell: 'npm install --no-cache && npm run-script build'
