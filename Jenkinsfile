@@ -58,6 +58,7 @@ node {
                     /*
                         TODO: need to work out how to wait on a rollout of a StatefulSet
                     */
+                }
             }
         }
 
