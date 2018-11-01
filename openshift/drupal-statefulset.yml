@@ -21,9 +21,11 @@ objects:
   kind: StatefulSet
   metadata:
     name: drupal-deployment-${DEPLOYMENT_ID}
+    annotations:
+      "template.alpha.openshift.io/wait-for-ready": "true"
   spec:
     serviceName: "drupal-headless-${DEPLOYMENT_ID}"
-    replicas: 1
+    replicas: 3
     activeDeadlineSeconds: 1200
     selector:
       matchLabels:

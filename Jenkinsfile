@@ -30,62 +30,36 @@ node {
                 openshift.withCluster() {
                     openshift.withProject() {
 
-                        def buildConfig = openshift.create(openshift.process(readFile(file:'openshift/docker-image-build.yml'),'-p', "DEPLOYMENT_ID=${deploymentId}"))
+                        def buildConfig = openshift.selector('bc/drupal-docker-image')
                         def build = buildConfig.startBuild()
                         build.untilEach(1) {
-                            echo "Waiting for build of Docker Image 'redhatdeveloper/rhdp-drupal:${deploymentId} to complete..."
-                            sleep 10
+                            echo "Building Docker Image for this deployment..."
                             return (it.object().status.phase == 'Complete')
                         }
 
+                        echo "Tagging built Docker Image as 'rhdp-drupal:${deploymentId}'..."
+                        openshift.tag("rhdp-drupal:latest", "rhdp-drupal:${deploymentId}")
                     }
                 }
         }
 
-        stage('Bootstrap Deployment') {
-            echo "Bootstrapping the environment for deployment '${deploymentId}'..."
-            openshift.withCluster() {
-                openshift.withProject() {
 
-                /*
-                    I see no way of being able to reference an image from an ImageStream in a DeploymentConfig without
-                    having automatic build triggers.
-                */
-                    def imageStream = openshift.selector("is/rhdp-drupal")
-                    internalDockerRegistry = imageStream.object().status['dockerImageRepository']
-
-                    def deployJob = openshift.create(openshift.process(readFile(file:'openshift/drupal-deployment-job.yml'),'-p', "DEPLOYMENT_ID=${deploymentId}", "IMAGE_STREAM=${internalDockerRegistry}"))
-                    waitUntil() {
-                        echo "Waiting for the completion of job 'drupal-deployment-job-${deploymentId}. This may take some time..."
-                        sleep 15
-                        openshift.raw("get job drupal-deployment-job-${deploymentId} -o jsonpath='{.status.conditions[?(@.type==\"Complete\")].status}'").out.toString().trim().toBoolean()
-                    }
-                }
-            }
-        }
 
         stage('Deploy Drupal') {
             echo "Deploying Drupal for deployment '${deploymentId}'..."
             openshift.withCluster() {
                 openshift.withProject() {
-                def deploymentConfig = openshift.create(openshift.process(readFile(file:'openshift/drupal-deployment.yml'), '-p', "DEPLOYMENT_ID=${deploymentId}", , "IMAGE_STREAM=${internalDockerRegistry}"));
-                   deploymentConfig.rollout().status()
-                }
-            }
-        }
+                    openshift.create(openshift.process(readFile(file:'openshift/drupal-services.yml'), '-p', "DEPLOYMENT_ID=${deploymentId}"))
 
-        stage("Expose Endpoint") {
-            echo "Exposing HTTP endpoint for Drupal deployment '${deploymentId}..."
-            openshift.withCluster() {
-                openshift.withProject() {
+                    def imageStream = openshift.selector("is/rhdp-drupal")
+                    internalDockerRegistry = imageStream.object().status['dockerImageRepository']
+                    openshift.create(openshift.process(readFile(file:'openshift/drupal-statefulset.yml'), '-p', "DEPLOYMENT_ID=${deploymentId}", "IMAGE_STREAM=${internalDockerRegistry}"))
+
                     /*
-                        This should be using openshift.verifyService(), but it's not in the plugin version installed here.
+                        TODO: need to work out how to wait on a rollout of a StatefulSet
                     */
-                    openshift.create(openshift.process(readFile(file:'openshift/drupal-http-service.yml'), '-p', "DEPLOYMENT_ID=${deploymentId}"));
-                }
             }
         }
-
 
         stage("Update 'next' route") {
             openshift.withCluster() {

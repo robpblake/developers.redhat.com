@@ -1,14 +1,29 @@
 apiVersion: v1
-kind: Service
+kind: Template
 metadata:
-  name: drupal-headless-2
-  labels:
-    drupal-deployment-id: "2"
-spec:
-  ports:
-  - name: http
-    port: 80
-    targetPort: 8080
-  clusterIP: None
-  selector:
-    drupal-deployment-id: "2"
+  name: drupal-http-service
+  annotations:
+    openshift.io/display-name: "Template for the headless service for consistent naming and IPs of the StatefulSet."
+    description: "Creates the headless service for the StatefulSet deployment."
+    iconClass: icon-drupal
+labels:
+  drupal-deployment-id: "${DEPLOYMENT_ID}"
+parameters:
+- name: DEPLOYMENT_ID
+  description: "The id of Drupal deployment that we are creating this headless service for."
+  required: true
+objects:
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: drupal-headless-${DEPLOYMENT_ID}
+    labels:
+      drupal-deployment-id: "${DEPLOYMENT_ID}"
+  spec:
+    ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+    clusterIP: None
+    selector:
+      drupal-deployment-id: "${DEPLOYMENT_ID}"
