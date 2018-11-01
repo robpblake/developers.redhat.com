@@ -21,8 +21,6 @@ objects:
   kind: StatefulSet
   metadata:
     name: drupal-deployment-${DEPLOYMENT_ID}
-    annotations:
-      "template.alpha.openshift.io/wait-for-ready": "true"
   spec:
     serviceName: "drupal-headless-${DEPLOYMENT_ID}"
     replicas: 3
@@ -129,8 +127,6 @@ objects:
           - name: drupal-workspace
             mountPath: /var/www/drupal/web/themes/custom/rhdp/rhd-frontend/rhd.min.css
             subPath: drupal_${DEPLOYMENT_ID}/drupal/theme/rhd.min.css
-          - name: drupal-workspace
-            mountPath: /drupal-workspace
         volumes:
         - name: drupal-workspace
           persistentVolumeClaim:
