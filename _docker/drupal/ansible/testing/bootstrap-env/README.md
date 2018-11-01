@@ -5,6 +5,12 @@ This directory provides a `docker-compose` environment for testing the `bootstra
 To use this directory for testing, the following is required:
 
 ```bash
+docker-compose build
+```
+
+and then:
+
+```bash
 docker-compose run --rm seed_env
 ```
 

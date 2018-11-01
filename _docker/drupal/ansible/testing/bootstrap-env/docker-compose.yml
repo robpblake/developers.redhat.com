@@ -9,7 +9,8 @@ services:
       - drupal_workspace:/drupal-workspace
 
   bootstrap_env:
-    image: robpblake/rhdp-drupal
+    build:
+      context: ../../../
     command: ["/bin/bash"]
     working_dir: "/ansible"
     environment:

@@ -1,0 +1,134 @@
+---
+apiVersion: v1
+kind: Template
+metadata:
+  name: drupal-statefulset
+  annotations:
+    openshift.io/display-name: "Template for the StatefulSet deployment of Drupal."
+    description: "A StatefulSet that deploys a specific image of Drupal"
+    iconClass: icon-drupal
+labels:
+  drupal-deployment-id: "${DEPLOYMENT_ID}"
+parameters:
+- name: DEPLOYMENT_ID
+  description: "The id of Drupal deployment that we are creating."
+  required: true
+- name: IMAGE_STREAM
+  description: "The Image Stream to pull the Drupal Docker Image from"
+  required: true
+objects:
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    name: drupal-deployment-${DEPLOYMENT_ID}
+  spec:
+    serviceName: "drupal-headless-${DEPLOYMENT_ID}"
+    replicas: 1
+    activeDeadlineSeconds: 1200
+    selector:
+      matchLabels:
+        drupal-deployment-id: "${DEPLOYMENT_ID}"
+    template:
+      metadata:
+        labels:
+          drupal-deployment-id: "${DEPLOYMENT_ID}"
+      spec:
+        initContainers:
+        - name: rhdp-data-seed
+          image: redhatdeveloper/rhdp-data-seed
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: DEPLOYMENT_ID
+            value: '${DEPLOYMENT_ID}'
+          volumeMounts:
+          - name: drupal-workspace
+            mountPath: /drupal-workspace
+        - name: rhdp-bootstrap-env
+          image: ${IMAGE_STREAM}:${DEPLOYMENT_ID}
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: DEPLOYMENT_ID
+            value: '${DEPLOYMENT_ID}'
+          args: ['/usr/bin/ansible-playbook', '/ansible/bootstrap-env.yml']
+          volumeMounts:
+          - name: drupal-workspace
+            mountPath: /drupal-workspace
+          - name: environment-secrets
+            mountPath: /credentials/ansible
+        - name: rhdp-bootstrap-drupal
+          image: ${IMAGE_STREAM}:${DEPLOYMENT_ID}
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: DEPLOYMENT_ID
+            value: '${DEPLOYMENT_ID}'
+          args: ['/usr/bin/ansible-playbook','/ansible/bootstrap-drupal.yml']
+          volumeMounts:
+          - name: drupal-workspace
+            mountPath: /var/www/drupal/web/sites/default/rhd.settings.yml
+            subPath: drupal_${DEPLOYMENT_ID}/drupal/credentials/rhd.settings.yml
+          - name: drupal-workspace
+            mountPath: /var/www/drupal/web/sites/default/rhd.settings.php
+            subPath: drupal_${DEPLOYMENT_ID}/drupal/credentials/rhd.settings.php
+          - name: drupal-workspace
+            mountPath: /var/www/drupal/web/sites/default/files
+            subPath: drupal_${DEPLOYMENT_ID}/drupal/files
+          - name: drupal-workspace
+            mountPath: /var/www/drupal/web/config/active
+            subPath: drupal_${DEPLOYMENT_ID}/drupal/config/active
+          - name: environment-secrets
+            mountPath: /credentials/ansible
+        containers:
+        - name: "drupal-${DEPLOYMENT_ID}"
+          image: ${IMAGE_STREAM}:${DEPLOYMENT_ID}
+          command: ['/uid_entrypoint.sh']
+          args: ['/var/www/drupal/run-httpd.sh']
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          readinessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 20
+            httpGet:
+              path: /
+              port: 8080
+          livenessProbe:
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 20
+            httpGet:
+              path: /
+              port: 8080
+          ports:
+          - containerPort: 8080
+            name: http
+            protocol: "TCP"
+          volumeMounts:
+          - name: drupal-workspace
+            mountPath: /var/www/drupal/web/images
+            subPath: drupal_${DEPLOYMENT_ID}/developers.redhat.com/images
+          - name: drupal-workspace
+            mountPath: /var/www/drupal/web/sites/default/rhd.settings.yml
+            subPath: drupal_${DEPLOYMENT_ID}/drupal/credentials/rhd.settings.yml
+          - name: drupal-workspace
+            mountPath: /var/www/drupal/web/sites/default/rhd.settings.php
+            subPath: drupal_${DEPLOYMENT_ID}/drupal/credentials/rhd.settings.php
+          - name: drupal-workspace
+            mountPath: /var/www/drupal/web/sites/default/files
+            subPath: drupal_${DEPLOYMENT_ID}/drupal/files
+          - name: drupal-workspace
+            mountPath: /var/www/drupal/web/config/active
+            subPath: drupal_${DEPLOYMENT_ID}/drupal/config/active
+          - name: drupal-workspace
+            mountPath: /var/www/drupal/web/themes/custom/rhdp/rhd-frontend/rhd.min.js
+            subPath: drupal_${DEPLOYMENT_ID}/drupal/theme/rhd.min.js
+          - name: drupal-workspace
+            mountPath: /var/www/drupal/web/themes/custom/rhdp/rhd-frontend/rhd.min.css
+            subPath: drupal_${DEPLOYMENT_ID}/drupal/theme/rhd.min.css
+        volumes:
+        - name: drupal-workspace
+          persistentVolumeClaim:
+            claimName: drupal-workspace
+        - name: environment-secrets
+          secret:
+            secretName: environment-secrets
+            optional: false

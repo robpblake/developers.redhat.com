@@ -7,6 +7,8 @@
 - hosts: localhost
   connection: local
   become: no
+  var:
+    - work_dir: "/drupal-workspace/{{ drupal_deployment_dir }}/work"
   vars_files:
     - "/credentials/ansible/env.yml"
     - "vars/{{ rhdp_environment }}/drupal/vars.yml"
@@ -17,24 +19,28 @@
         chdir: '/var/www/drupal/web'
 
     - name: Run Drupal Module Database Updates
-      shell: 'drush -y --entity-updates updb && drush cr'
+      shell: 'drush -y --entity-updates updb && drush cr >> {{ work_dir }}/drupal.updb.do.not.delete'
       args:
         chdir: '/var/www/drupal/web'
+        creates: "{{ work_dir }}/drupal.updb.do.not.delete"
 
     - name: Apply Lightning Profile Updates
-      shell: 'drush update:lightning --no-interaction && drush cr'
+      shell: 'drush update:lightning --no-interaction && drush cr >> {{ work_dir }}/drupal.lightning.do.not.delete'
       args:
         chdir: '/var/www/drupal/web'
+        creates: "{{ work_dir }}/drupal.lightning.do.not.delete"
 
     - name: Import the latest Drupal configuration
-      shell: 'drush -y cim && drush cr'
+      shell: 'drush -y cim && drush cr >> {{ work_dir }}/drupal.cim.do.not.delete'
       args:
         chdir: '/var/www/drupal/web'
+        creates: "{{ work_dir }}/drupal.cim.do.not.delete"
 
     - name: Run Phinx Database Migrations
-      shell: 'phinx migrate -e automated'
+      shell: 'phinx migrate -e automated >> {{ work_dir }}/drupal.phinx.do.not.delete'
       args:
         chdir: '/var/www/drupal'
+        creates: "{{ work_dir }}/drupal.phinx.do.not.delete"
       environment:
         PHINX_DB_HOST: "{{ drupal_db_host }}"
         PHINX_DB_NAME: "{{ drupal_deployment_dir }}"
