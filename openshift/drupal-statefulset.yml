@@ -45,7 +45,7 @@ objects:
             mountPath: /drupal-workspace
         - name: rhdp-bootstrap-env
           image: ${IMAGE_STREAM}:${DEPLOYMENT_ID}
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
           - name: DEPLOYMENT_ID
             value: '${DEPLOYMENT_ID}'
@@ -57,7 +57,7 @@ objects:
             mountPath: /credentials/ansible
         - name: rhdp-bootstrap-drupal
           image: ${IMAGE_STREAM}:${DEPLOYMENT_ID}
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
           - name: DEPLOYMENT_ID
             value: '${DEPLOYMENT_ID}'
@@ -75,11 +75,14 @@ objects:
           - name: drupal-workspace
             mountPath: /var/www/drupal/web/config/active
             subPath: drupal_${DEPLOYMENT_ID}/drupal/config/active
+          - name: drupal-workspace
+            mountPath: /drupal-workspace
           - name: environment-secrets
             mountPath: /credentials/ansible
         containers:
-        - name: "drupal-${DEPLOYMENT_ID}"
+        - name: "drupal"
           image: ${IMAGE_STREAM}:${DEPLOYMENT_ID}
+          imagePullPolicy: Always
           command: ['/uid_entrypoint.sh']
           args: ['/var/www/drupal/run-httpd.sh']
           terminationMessagePath: /dev/termination-log
@@ -124,6 +127,8 @@ objects:
           - name: drupal-workspace
             mountPath: /var/www/drupal/web/themes/custom/rhdp/rhd-frontend/rhd.min.css
             subPath: drupal_${DEPLOYMENT_ID}/drupal/theme/rhd.min.css
+          - name: drupal-workspace
+            mountPath: /drupal-workspace
         volumes:
         - name: drupal-workspace
           persistentVolumeClaim:

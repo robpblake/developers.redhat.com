@@ -7,7 +7,7 @@
 - hosts: localhost
   connection: local
   become: no
-  var:
+  vars:
     - work_dir: "/drupal-workspace/{{ drupal_deployment_dir }}/work"
   vars_files:
     - "/credentials/ansible/env.yml"
