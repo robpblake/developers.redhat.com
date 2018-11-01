@@ -13,8 +13,8 @@ parameters:
 - name: DEPLOYMENT_ID
   description: "The id of Drupal deployment that we are creating."
   required: true
-- name: IMAGE_STREAM
-  description: "The Image Stream to pull the Drupal Docker Image from"
+- name: IMAGE_REPOSITORY
+  description: "The Image Repository to pull Docker Images from"
   required: true
 objects:
 - apiVersion: apps/v1
@@ -35,8 +35,18 @@ objects:
       spec:
         initContainers:
         - name: rhdp-data-seed
-          image: redhatdeveloper/rhdp-data-seed
-          imagePullPolicy: IfNotPresent
+          image: ${IMAGE_REPOSITORY}/rhdp-drupal/drupal-data-lite:latest
+          imagePullPolicy: Always
+          command:
+            - sh
+            - "-c"
+            - |
+              set -ex
+              mkdir -p "/drupal-workspace/drupal_$DEPLOYMENT_ID/drupal/config" "/drupal-workspace/drupal_$DEPLOYMENT_ID/seed/db"
+              cp "/docker-entrypoint-initdb.d/drupal-db.sql.gz" "/drupal-workspace/drupal_$DEPLOYMENT_ID/seed/db/drupal-db-sql.gz"
+              cp -r "/var/www/drupal/web/config/active" "/drupal-workspace/drupal_$DEPLOYMENT_ID/drupal/config"
+              cp -r "/var/www/drupal/web/sites/default/files" "/drupal-workspace/drupal_$DEPLOYMENT_ID/drupal"
+              chmod -R 775 "/drupal-workspace/drupal_$DEPLOYMENT_ID"
           env:
           - name: DEPLOYMENT_ID
             value: '${DEPLOYMENT_ID}'
@@ -44,7 +54,7 @@ objects:
           - name: drupal-workspace
             mountPath: /drupal-workspace
         - name: rhdp-bootstrap-env
-          image: ${IMAGE_STREAM}:${DEPLOYMENT_ID}
+          image: ${IMAGE_REPOSITORY}/rhdp-drupal/rhdp-drupal:${DEPLOYMENT_ID}
           imagePullPolicy: Always
           env:
           - name: DEPLOYMENT_ID
@@ -56,7 +66,7 @@ objects:
           - name: environment-secrets
             mountPath: /credentials/ansible
         - name: rhdp-bootstrap-drupal
-          image: ${IMAGE_STREAM}:${DEPLOYMENT_ID}
+          image: ${IMAGE_REPOSITORY}/rhdp-drupal/rhdp-drupal:${DEPLOYMENT_ID}
           imagePullPolicy: Always
           env:
           - name: DEPLOYMENT_ID
@@ -81,7 +91,7 @@ objects:
             mountPath: /credentials/ansible
         containers:
         - name: "drupal"
-          image: ${IMAGE_STREAM}:${DEPLOYMENT_ID}
+          image: ${IMAGE_REPOSITORY}/rhdp-drupal/rhdp-drupal:${DEPLOYMENT_ID}
           imagePullPolicy: Always
           command: ['/uid_entrypoint.sh']
           args: ['/var/www/drupal/run-httpd.sh']

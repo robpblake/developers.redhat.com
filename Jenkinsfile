@@ -52,8 +52,8 @@ node {
                     openshift.create(openshift.process(readFile(file:'openshift/drupal-services.yml'), '-p', "DEPLOYMENT_ID=${deploymentId}"))
 
                     def imageStream = openshift.selector("is/rhdp-drupal")
-                    internalDockerRegistry = imageStream.object().status['dockerImageRepository']
-                    openshift.create(openshift.process(readFile(file:'openshift/drupal-statefulset.yml'), '-p', "DEPLOYMENT_ID=${deploymentId}", "IMAGE_STREAM=${internalDockerRegistry}"))
+                    internalDockerRegistry = imageStream.object().status['dockerImageRepository'].split('/')[0]
+                    openshift.create(openshift.process(readFile(file:'openshift/drupal-statefulset.yml'), '-p', "DEPLOYMENT_ID=${deploymentId}", "IMAGE_REPOSITORY=${internalDockerRegistry}"))
 
                     /*
                         TODO: need to work out how to wait on a rollout of a StatefulSet
