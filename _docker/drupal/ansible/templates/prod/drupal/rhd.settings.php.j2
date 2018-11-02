@@ -23,3 +23,6 @@ $settings['install_profile'] = 'lightning';
 $config['automated_cron.settings']['interval'] = 0;
 /* Increase default memory settings for Drupal to 256 meg. Taken from: https://www.drupal.org/docs/7/managing-site-performance-and-scalability/changing-php-memory-limits */
 ini_set('memory_limit', '256M');
+
+/* Relax Transaction Isolation to READ-COMMITTED: https://www.drupal.org/project/drupal/issues/2833539  */
+$databases['default']['default']['init_commands']['isolation'] = "SET SESSION tx_isolation='READ-COMMITTED'";
