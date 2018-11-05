@@ -65,7 +65,7 @@ node {
         stage("Update 'next' route") {
             openshift.withCluster() {
                openshift.withProject() {
-                   def nextServiceName = "drupal-http-${deploymentId}"
+                   def nextServiceName = "drupal-https-${deploymentId}"
                    echo "Updating 'next' route to send traffic to service '${nextServiceName}'.."
                    openshift.raw("patch route/next -p '{\"spec\":{\"to\":{\"name\":\"${nextServiceName}\"}}}'")
                }
@@ -80,8 +80,8 @@ node {
             openshift.withCluster() {
                 openshift.withProject() {
 
-                    def previousServiceName = "drupal-http-${currentDeploymentId}"
-                    def currentServiceName = "drupal-http-${deploymentId}"
+                    def previousServiceName = "drupal-https-${currentDeploymentId}"
+                    def currentServiceName = "drupal-https-${deploymentId}"
 
                     def configMap = openshift.selector('configmap/drupal-deployments').object()
                     configMap.data['PREVIOUS_DEPLOYMENT_ID'] = "${currentDeploymentId}"
