@@ -164,6 +164,10 @@ objects:
         - name: drupal-workspace
           persistentVolumeClaim:
             claimName: drupal-workspace
+        - name: environment-secrets
+          secret:
+            secretName: environment-secrets
+            optional: false
         - name: drupal-ssl
           secret:
             secretName: drupal-ssl
