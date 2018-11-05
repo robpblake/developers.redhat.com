@@ -59,15 +59,6 @@
       notify:
         - 'import-db'
 
-#    - name: Import the latest production database dump into the database of this deployment
-#      mysql_db:
-#        name: '{{ drupal_deployment_dir }}'
-#        state: import
-#        target: '/drupal-workspace/{{ drupal_deployment_dir }}/seed/db/drupal-db-sql.gz'
-#        login_host: '{{ drupal_db_host }}'
-#        login_user: '{{ drupal_db_user }}'
-#        login_password: '{{ drupal_db_password }}'
-
     - name: Clone the developers.redhat.com Git repository into the working directory of this deployment
       git:
         depth: 1
@@ -78,22 +69,22 @@
         version: '{{ rhdp_git_branch }}'
         update: no
 
-    - name: Run npm install & npm run-script build for the rhd-frontend component
-      shell: 'npm install --no-cache && npm run-script build >> {{ work_dir }}/npm.do.not.delete'
-      args:
-        chdir: '/drupal-workspace/{{ drupal_deployment_dir }}/developers.redhat.com/_docker/drupal/drupal-filesystem/web/themes/custom/rhdp/rhd-frontend'
-        creates: '{{ work_dir }}/npm.do.not.delete'
-
-    - name: Copy the built theme resources into the working directory for mounting into Drupal
-      copy:
-        src: '{{ item.src }}'
-        dest: '{{ item.dest }}'
-        mode: 0770
-        group: 'root'
-        force: no
-      with_items:
-        - { src: '/drupal-workspace/{{ drupal_deployment_dir }}/developers.redhat.com/_docker/drupal/drupal-filesystem/web/themes/custom/rhdp/rhd-frontend/rhd.min.js' , dest: '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/theme/rhd.min.js' }
-        - { src: '/drupal-workspace/{{ drupal_deployment_dir }}/developers.redhat.com/_docker/drupal/drupal-filesystem/web/themes/custom/rhdp/rhd-frontend/rhd.min.css' , dest: '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/theme/rhd.min.css' }
+#    - name: Run npm install & npm run-script build for the rhd-frontend component
+#      shell: 'npm install --no-cache && npm run-script build >> {{ work_dir }}/npm.do.not.delete'
+#      args:
+#        chdir: '/drupal-workspace/{{ drupal_deployment_dir }}/developers.redhat.com/_docker/drupal/drupal-filesystem/web/themes/custom/rhdp/rhd-frontend'
+#        creates: '{{ work_dir }}/npm.do.not.delete'
+#
+#    - name: Copy the built theme resources into the working directory for mounting into Drupal
+#      copy:
+#        src: '{{ item.src }}'
+#        dest: '{{ item.dest }}'
+#        mode: 0770
+#        group: 'root'
+#        force: no
+#      with_items:
+#        - { src: '/drupal-workspace/{{ drupal_deployment_dir }}/developers.redhat.com/_docker/drupal/drupal-filesystem/web/themes/custom/rhdp/rhd-frontend/rhd.min.js' , dest: '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/theme/rhd.min.js' }
+#        - { src: '/drupal-workspace/{{ drupal_deployment_dir }}/developers.redhat.com/_docker/drupal/drupal-filesystem/web/themes/custom/rhdp/rhd-frontend/rhd.min.css' , dest: '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/theme/rhd.min.css' }
 
     - name: Template the rhd.settings.php for mounting into Drupal
       template:

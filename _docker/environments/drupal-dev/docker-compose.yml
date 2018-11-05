@@ -4,6 +4,9 @@ services:
     build: ../../drupal
     ports:
       - "80:8080"
+      - "443:8443"
+    expose:
+      - 8443
     environment:
       - FORTAWESOME_REGISTRY
     links:
@@ -13,6 +16,8 @@ services:
     volumes:
       - ./rhd.settings.php:/var/www/drupal/web/sites/default/rhd.settings.php
       - ./rhd.settings.yml:/var/www/drupal/web/sites/default/rhd.settings.yml
+      - ./ssl/developers.dev.redhat.com.crt:/ssl/drupal.crt
+      - ./ssl/developers.dev.redhat.com.key:/ssl/drupal.key
       - ../../drupal/drupal-filesystem/web/themes/custom:/var/www/drupal/web/themes/custom
       - ../../drupal/drupal-filesystem/web/modules/custom:/var/www/drupal/web/modules/custom
       - ./drupal-logs:/var/log/httpd

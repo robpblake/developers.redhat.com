@@ -2,8 +2,9 @@ FROM robpblake/rhdp-base
 USER root
 CMD ["/var/www/drupal/run-httpd.sh"]
 EXPOSE 8080
+EXPOSE 8443
 WORKDIR /var/www/drupal
-RUN gem install asciidoctor
+RUN gem install asciidoctor -v 1.5.8
 
 COPY apache/drupal.conf /etc/httpd/conf.d/drupal.conf
 
@@ -21,6 +22,12 @@ RUN cd /var/www/drupal \
 COPY drupal-filesystem/web/sites/default /var/www/drupal/web/sites/default
 COPY drupal-filesystem/web/modules/custom /var/www/drupal/web/modules/custom
 COPY drupal-filesystem/web/themes/custom /var/www/drupal/web/themes/custom
+
+# Build the theme
+RUN cd /var/www/drupal/web/themes/custom/rhdp/rhd-frontend \
+    && npm install \
+    && npm run-script build \
+    && rm -rf /var/www/drupal/web/themes/custom/rhdp/rhd-frontend/node_modules
 
 # Copy in the Drupal configuration
 COPY drupal-filesystem/web/config/sync /var/www/drupal/web/config/sync
