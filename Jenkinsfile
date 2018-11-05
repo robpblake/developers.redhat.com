@@ -26,7 +26,7 @@ node {
         }
 
         stage('Build Docker Image') {
-            echo "Building the Docker image for this deployment. Image will be tagged as 'redhatdeveloper/rhdp-drupal:${deploymentId}'..."
+            echo "Building the Docker image for this deployment..."
                 openshift.withCluster() {
                     openshift.withProject() {
 
@@ -52,7 +52,7 @@ node {
                     openshift.create(openshift.process(readFile(file:'openshift/drupal-services.yml'), '-p', "DEPLOYMENT_ID=${deploymentId}"))
 
                     def imageStream = openshift.selector("is/rhdp-drupal")
-                    internalDockerRegistry = imageStream.object().status['dockerImageRepository'].split('/')[0]
+                    internalDockerRegistry = imageStream.object().status['dockerImageRepository'].split('/')[0] + "/${env.PROJECT_NAME}"
                     openshift.create(openshift.process(readFile(file:'openshift/drupal-statefulset.yml'), '-p', "DEPLOYMENT_ID=${deploymentId}", "IMAGE_REPOSITORY=${internalDockerRegistry}"))
 
                     /*

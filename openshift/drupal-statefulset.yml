@@ -34,7 +34,7 @@ objects:
       spec:
         initContainers:
         - name: rhdp-data-seed
-          image: ${IMAGE_REPOSITORY}/rhdp--prototype/drupal-data-lite:latest
+          image: ${IMAGE_REPOSITORY}/drupal-data-lite:latest
           imagePullPolicy: Always
           resources:
             requests:
@@ -60,7 +60,7 @@ objects:
           - name: drupal-workspace
             mountPath: /drupal-workspace
         - name: rhdp-bootstrap-env
-          image: ${IMAGE_REPOSITORY}/rhdp--prototype/rhdp-drupal:${DEPLOYMENT_ID}
+          image: ${IMAGE_REPOSITORY}/rhdp-drupal:${DEPLOYMENT_ID}
           imagePullPolicy: Always
           resources:
             requests:
@@ -79,7 +79,7 @@ objects:
           - name: environment-secrets
             mountPath: /credentials/ansible
         - name: rhdp-bootstrap-drupal
-          image: ${IMAGE_REPOSITORY}/rhdp--prototype/rhdp-drupal:${DEPLOYMENT_ID}
+          image: ${IMAGE_REPOSITORY}/rhdp-drupal:${DEPLOYMENT_ID}
           imagePullPolicy: Always
           resources:
             requests:
@@ -111,7 +111,7 @@ objects:
             mountPath: /credentials/ansible
         containers:
         - name: "drupal"
-          image: ${IMAGE_REPOSITORY}/rhdp--prototype/rhdp-drupal:${DEPLOYMENT_ID}
+          image: ${IMAGE_REPOSITORY}/rhdp-drupal:${DEPLOYMENT_ID}
           imagePullPolicy: Always
           command: ['/uid_entrypoint.sh']
           args: ['/var/www/drupal/run-httpd.sh']
@@ -158,17 +158,13 @@ objects:
           - name: drupal-workspace
             mountPath: /var/www/drupal/web/config/active
             subPath: drupal_${DEPLOYMENT_ID}/drupal/config/active
-          - name: drupal-workspace
-            mountPath: /var/www/drupal/web/themes/custom/rhdp/rhd-frontend/rhd.min.js
-            subPath: drupal_${DEPLOYMENT_ID}/drupal/theme/rhd.min.js
-          - name: drupal-workspace
-            mountPath: /var/www/drupal/web/themes/custom/rhdp/rhd-frontend/rhd.min.css
-            subPath: drupal_${DEPLOYMENT_ID}/drupal/theme/rhd.min.css
+          - name: drupal-ssl
+            mountPath: /ssl
         volumes:
         - name: drupal-workspace
           persistentVolumeClaim:
             claimName: drupal-workspace
-        - name: environment-secrets
+        - name: drupal-ssl
           secret:
-            secretName: environment-secrets
+            secretName: drupal-ssl
             optional: false
