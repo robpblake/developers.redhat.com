@@ -1,4 +1,4 @@
-FROM robpblake/rhdp-base
+FROM robpblake/rhdp-base:1
 USER root
 CMD ["/var/www/drupal/run-httpd.sh"]
 EXPOSE 8080
