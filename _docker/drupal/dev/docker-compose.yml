@@ -1,0 +1,10 @@
+version: '3'
+services:
+  update-composer:
+    image: robpblake/rhdp-base:1
+    volumes:
+      - ../drupal-filesystem/composer.json:/drupal/composer.json
+      - ../drupal-filesystem/composer.lock:/drupal/composer.lock
+      - ../drupal-filesystem/scripts/ScriptHandler.php:/drupal/scripts/ScriptHandler.php
+    entrypoint: ["composer", "update"]
+    working_dir: /drupal
