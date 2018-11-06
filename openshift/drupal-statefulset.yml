@@ -34,7 +34,7 @@ objects:
       spec:
         initContainers:
         - name: rhdp-data-seed
-          image: ${IMAGE_REPOSITORY}/drupal-data-lite:latest
+          image: drupal-data-lite:latest
           imagePullPolicy: Always
           resources:
             requests:
@@ -60,7 +60,7 @@ objects:
           - name: drupal-workspace
             mountPath: /drupal-workspace
         - name: rhdp-bootstrap-env
-          image: ${IMAGE_REPOSITORY}/rhdp-drupal:${DEPLOYMENT_ID}
+          image: ${IMAGE_REPOSITORY}/rhdp-drupal
           imagePullPolicy: Always
           resources:
             requests:
@@ -79,7 +79,7 @@ objects:
           - name: environment-secrets
             mountPath: /credentials/ansible
         - name: rhdp-bootstrap-drupal
-          image: ${IMAGE_REPOSITORY}/rhdp-drupal:${DEPLOYMENT_ID}
+          image: ${IMAGE_REPOSITORY}/rhdp-drupal
           imagePullPolicy: Always
           resources:
             requests:
@@ -111,7 +111,7 @@ objects:
             mountPath: /credentials/ansible
         containers:
         - name: "drupal"
-          image: ${IMAGE_REPOSITORY}/rhdp-drupal:${DEPLOYMENT_ID}
+          image: ${IMAGE_REPOSITORY}/rhdp-drupal
           imagePullPolicy: Always
           command: ['/uid_entrypoint.sh']
           args: ['/var/www/drupal/run-httpd.sh']
