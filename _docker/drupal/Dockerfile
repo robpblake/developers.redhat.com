@@ -1,4 +1,4 @@
-FROM robpblake/rhdp-base:1
+FROM robpblake/rhdp-base:rhel7
 USER root
 CMD ["/var/www/drupal/run-httpd.sh"]
 EXPOSE 8080
@@ -6,7 +6,7 @@ EXPOSE 8443
 WORKDIR /var/www/drupal
 RUN gem install asciidoctor -v 1.5.8
 
-COPY apache/drupal.conf /etc/httpd/conf.d/drupal.conf
+COPY apache/drupal.conf /opt/rh/httpd24/root/etc/httpd/conf.d/drupal.conf
 
 # Copy in database migration files
 COPY drupal-filesystem/db-migrations /var/www/drupal/db-migrations
@@ -37,8 +37,8 @@ COPY drupal-filesystem/scripts/run-httpd.sh /var/www/drupal/run-httpd.sh
 RUN chmod +x /var/www/drupal/run-httpd.sh
 
 # Permissions here are required for us to run on Openshift
-RUN chown -R root:0 /run/httpd \
-    && chmod -R 770 /run/httpd
+RUN chown -R root:0 /opt/rh/httpd24/root/etc/httpd/run \
+    && chmod -R 770 /opt/rh/httpd24/root/etc/httpd/run
 
 # Copy in Ansible playbooks for provisioning
 COPY ansible /ansible
