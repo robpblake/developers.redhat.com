@@ -37,13 +37,13 @@ COPY drupal-filesystem/scripts/run-httpd.sh /var/www/drupal/run-httpd.sh
 RUN chmod +x /var/www/drupal/run-httpd.sh
 
 # Permissions here are required for us to run on Openshift
-RUN chown -R root:0 /opt/rh/httpd24/root/etc/httpd/run \
-    && chmod -R 770 /opt/rh/httpd24/root/etc/httpd/run
+RUN chown -R root:0 /opt/rh/httpd24/root/var/run/httpd \
+    && chmod -R 770 /opt/rh/httpd24/root/var/run/httpd
 
 # Copy in Ansible playbooks for provisioning
 COPY ansible /ansible
 RUN chgrp -R 0 /ansible \
     && chmod -R g=u /ansible
 
-USER 1000
+USER 1001
 ENV PATH=$PATH:/var/www/drupal/vendor/bin
