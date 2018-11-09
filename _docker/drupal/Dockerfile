@@ -1,5 +1,6 @@
 FROM registry.paas.redhat.com/rhdp/rhdp-base
 USER root
+ARG composer_profile="production"
 CMD ["/var/www/drupal/run-httpd.sh"]
 EXPOSE 8080
 EXPOSE 8443
@@ -16,7 +17,10 @@ COPY drupal-filesystem/phinx.yml /var/www/drupal/phinx.yml
 COPY drupal-filesystem/scripts/ScriptHandler.php /var/www/drupal/scripts/
 COPY drupal-filesystem/composer.json drupal-filesystem/composer.lock /var/www/drupal/
 RUN cd /var/www/drupal \
-    && /usr/local/bin/composer install -n
+    && if [ "$composer_profile" = "development" ]; \
+       then /usr/local/bin/composer install --no-interaction; \
+       else /usr/local/bin/composer install --no-interaction --no-dev --optimize-autoloader; \
+       fi
 
 # Copy in the custom things we create
 COPY drupal-filesystem/web/sites/default /var/www/drupal/web/sites/default
