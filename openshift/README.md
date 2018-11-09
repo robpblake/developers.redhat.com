@@ -88,4 +88,28 @@ That's it.
 #### Making changes
 
 To make changes, simply raise a PR on my `managed-platform` branch and I will merge that for you. Then just repeat the
-above process to get your changes deployed to MP.   
+above process to get your changes deployed to MP.
+
+
+### Debugging
+
+Debugging on MP can be a bit of a challenge, but the following generally works:
+
+##### To see log output from the Drupal Server once it's running:
+
+```bash
+oc logs -f drupal-deployment-9-0
+```
+
+This will get you the logs of pod `0` within deployment `9`. Just change the pod number to see the others.
+
+
+##### To debug init containers:
+
+```bash
+oc logs -f drupal-deployment-9-0 -c rhdp-data-seed
+oc logs -f drupal-deployment-9-0 -c rhdp-boostrap-env
+oc logs -f drupal-deployment-9-0 -c rhdp-boostrap-drupal
+```
+
+Again change the pod numbers to match your deployment id.   
