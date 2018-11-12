@@ -14,30 +14,44 @@
     - "vars/{{ rhdp_environment }}/drupal/vars.yml"
   tasks:
     - name: Rebuild the Drupal Cache
-      shell: 'drush cr'
+      shell: 'drush cr && touch {{ work_dir }}/drupal.cr.do.not.delete'
+      register: drush_cr
       args:
         chdir: '/var/www/drupal/web'
+        creates: "{{ work_dir }}/drupal.cr.do.not.delete"
+    - debug:
+       var: drush_cr.stdout_lines
 
     - name: Run Drupal Module Database Updates
-      shell: 'drush -y --entity-updates updb && drush cr >> {{ work_dir }}/drupal.updb.do.not.delete'
+      shell: 'drush -y --entity-updates updb && drush cr && touch {{ work_dir }}/drupal.updb.do.not.delete'
+      register: entity_updates
       args:
         chdir: '/var/www/drupal/web'
         creates: "{{ work_dir }}/drupal.updb.do.not.delete"
+    - debug:
+       var: entity_updates.stdout_lines
 
     - name: Apply Lightning Profile Updates
-      shell: 'drush update:lightning --no-interaction && drush cr >> {{ work_dir }}/drupal.lightning.do.not.delete'
+      shell: 'drush update:lightning --no-interaction && drush cr && touch {{ work_dir }}/drupal.lightning.do.not.delete'
+      register: lightning_updates
       args:
         chdir: '/var/www/drupal/web'
         creates: "{{ work_dir }}/drupal.lightning.do.not.delete"
+    - debug:
+       var: lightning_updates.stdout_lines
 
     - name: Import the latest Drupal configuration
-      shell: 'drush -y cim && drush cr >> {{ work_dir }}/drupal.cim.do.not.delete'
+      shell: 'drush -y cim && drush cr && touch {{ work_dir }}/drupal.cim.do.not.delete'
+      register: drush_cim
       args:
         chdir: '/var/www/drupal/web'
         creates: "{{ work_dir }}/drupal.cim.do.not.delete"
+    - debug:
+       var: drush_cim.stdout_lines
 
     - name: Run Phinx Database Migrations
-      shell: 'phinx migrate -e automated >> {{ work_dir }}/drupal.phinx.do.not.delete'
+      shell: 'phinx migrate -e automated && touch {{ work_dir }}/drupal.phinx.do.not.delete'
+      register: phinx_migrate
       args:
         chdir: '/var/www/drupal'
         creates: "{{ work_dir }}/drupal.phinx.do.not.delete"
@@ -46,3 +60,5 @@
         PHINX_DB_NAME: "{{ drupal_deployment_dir }}"
         PHINX_DB_USER: "{{ drupal_db_user }}"
         PHINX_DB_PASSWORD: "{{ drupal_db_password }}"
+    - debug:
+       var: phinx_migrate.stdout_lines

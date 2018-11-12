@@ -1,5 +1,13 @@
 version: '2'
 services:
+  update-composer:
+    image: registry.paas.redhat.com/rhdp/rhdp-base
+    working_dir: /drupal
+    volumes:
+      - ../../drupal/drupal-filesystem/composer.json:/drupal/composer.json
+      - ../../drupal/drupal-filesystem/composer.lock:/drupal/composer.lock
+      - ../../drupal/drupal-filesystem/scripts/ScriptHandler.php:/drupal/scripts/ScriptHandler.php
+
   drupal:
     build:
       context: ../../drupal
@@ -21,9 +29,12 @@ services:
       - ./rhd.settings.yml:/var/www/drupal/web/sites/default/rhd.settings.yml
       - ./ssl/developers.dev.redhat.com.crt:/ssl/drupal.crt
       - ./ssl/developers.dev.redhat.com.key:/ssl/drupal.key
+      - ./env.yml:/credentials/ansible/env.yml
       - ../../drupal/drupal-filesystem/web/themes/custom:/var/www/drupal/web/themes/custom
       - ../../drupal/drupal-filesystem/web/modules/custom:/var/www/drupal/web/modules/custom
+      - ../../drupal/drupal-filesystem/web/config/sync:/var/www/drupal/web/config/sync
       - ./drupal-logs:/var/log/httpd
+      - /tmp/drupal-workspace:/drupal-workspace
     volumes_from:
       - drupal_data
 
@@ -95,5 +106,7 @@ services:
 # Volumes
 #
 volumes:
+ drupal-workspace:
+  driver: local
  export:
   driver: local
