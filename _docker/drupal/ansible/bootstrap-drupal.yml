@@ -15,12 +15,12 @@
   tasks:
     - name: Rebuild the Drupal Cache
       shell: 'drush cr && touch {{ work_dir }}/drupal.cr.do.not.delete'
-      register: drush_cr
+      register: drush_rc
       args:
         chdir: '/var/www/drupal/web'
         creates: "{{ work_dir }}/drupal.cr.do.not.delete"
     - debug:
-       var: drush_cr.stdout_lines
+        msg: "{{ (drush_rc.changed) | ternary(drush_rc.stderr_lines, drush_rc.stdout_lines) }}"
 
     - name: Run Drupal Module Database Updates
       shell: 'drush -y --entity-updates updb && drush cr && touch {{ work_dir }}/drupal.updb.do.not.delete'
@@ -29,7 +29,7 @@
         chdir: '/var/www/drupal/web'
         creates: "{{ work_dir }}/drupal.updb.do.not.delete"
     - debug:
-       var: entity_updates.stdout_lines
+       msg: "{{ (entity_updates.changed) | ternary(entity_updates.stderr_lines, entity_updates.stdout_lines) }}"
 
     - name: Apply Lightning Profile Updates
       shell: 'drush update:lightning --no-interaction && drush cr && touch {{ work_dir }}/drupal.lightning.do.not.delete'
@@ -38,7 +38,13 @@
         chdir: '/var/www/drupal/web'
         creates: "{{ work_dir }}/drupal.lightning.do.not.delete"
     - debug:
-       var: lightning_updates.stdout_lines
+        msg:
+          - "{{ lightning_updates.stdout_lines }}"
+          - "{{ lightning_updates.stderr_lines}}"
+      when: lightning_updates.changed
+    - debug:
+        var: lightning_updates.stdout_lines
+      when: not lightning_updates.changed
 
     - name: Import the latest Drupal configuration
       shell: 'drush -y cim && drush cr && touch {{ work_dir }}/drupal.cim.do.not.delete'
@@ -47,7 +53,13 @@
         chdir: '/var/www/drupal/web'
         creates: "{{ work_dir }}/drupal.cim.do.not.delete"
     - debug:
+        msg:
+          - "{{ drush_cim.stdout_lines }}"
+          - "{{ drush_cim.stderr_lines }}"
+      when: drush_cim.changed
+    - debug:
        var: drush_cim.stdout_lines
+      when: not drush_cim.changed
 
     - name: Run Phinx Database Migrations
       shell: 'phinx migrate -e automated && touch {{ work_dir }}/drupal.phinx.do.not.delete'

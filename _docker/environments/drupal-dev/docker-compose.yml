@@ -35,6 +35,7 @@ services:
       - ../../drupal/drupal-filesystem/web/config/sync:/var/www/drupal/web/config/sync
       - ./drupal-logs:/var/log/httpd
       - /tmp/drupal-workspace:/drupal-workspace
+      - ../../drupal/ansible:/ansible
     volumes_from:
       - drupal_data
 
