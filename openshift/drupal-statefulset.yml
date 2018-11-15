@@ -29,6 +29,7 @@ objects:
   spec:
     serviceName: "drupal-headless-${DEPLOYMENT_ID}"
     replicas: 3
+    activeDeadlineSeconds: "1200"
     selector:
       matchLabels:
         drupal-deployment-id: "${DEPLOYMENT_ID}"
@@ -37,7 +38,6 @@ objects:
         labels:
           drupal-deployment-id: "${DEPLOYMENT_ID}"
       spec:
-        activeDeadlineSeconds: 1200
         initContainers:
         - name: rhdp-data-seed
           image: ${DRUPAL_DATA_IMAGE_REPOSITORY}drupal-data-lite:latest
