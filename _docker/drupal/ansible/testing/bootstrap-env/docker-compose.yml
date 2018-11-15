@@ -2,15 +2,15 @@
 version: '3'
 services:
   seed_env:
-    image: redhatdeveloper/rhdp-data-seed
+    build:
+      context: ../rhdp-data-seed
     environment:
       - DEPLOYMENT_ID=1
     volumes:
       - drupal_workspace:/drupal-workspace
 
   bootstrap_env:
-    build:
-      context: ../../../
+    image: registry.paas.redhat.com/rhdp/rhdp-base
     command: ["/bin/bash"]
     working_dir: "/ansible"
     environment:
