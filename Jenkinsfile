@@ -129,6 +129,6 @@ def getCurrentReplicaCount(openshift, deploymentId) {
 
     return [
         desired: replicas.out.split('=')[0].toInteger(),
-        ready: readyReplicas.equals('<no value>') ? 0 : readyReplicas.toInteger()
+        ready: readyReplicas == '<no value>' ? 0 : readyReplicas.toInteger()
     ]
 }
