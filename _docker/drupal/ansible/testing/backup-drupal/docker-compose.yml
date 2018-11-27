@@ -1,0 +1,63 @@
+---
+version: '3'
+services:
+
+  seed_env:
+    build:
+      context: ../rhdp-data-seed
+    environment:
+    - DEPLOYMENT_ID=1
+    volumes:
+    - /tmp/drupal-workspace:/drupal-workspace
+
+  bootstrap_env:
+    build:
+      context: ../../../
+    entrypoint: ["/bin/bash", "-c", "ansible-playbook bootstrap-env.yml"]
+    working_dir: "/ansible"
+    environment:
+    - DEPLOYMENT_ID=1
+    volumes:
+    - ../../:/ansible
+    - ../env.yml:/credentials/ansible/env.yml
+    - /tmp/drupal-workspace:/drupal-workspace
+    depends_on:
+    - mysql
+
+  backup_drupal:
+    build:
+      context: ../../../
+    entrypoint: ["/bin/bash"]
+    working_dir: "/ansible"
+    user: root
+    environment:
+      - DEPLOYMENT_ID=1
+    volumes:
+    - ../../:/ansible
+    - ../env.yml:/credentials/ansible/env.yml
+    - /tmp/drupal-workspace/drupal_1/drupal/credentials/rhd.settings.yml:/var/www/drupal/web/sites/default/rhd.settings.yml
+    - /tmp/drupal-workspace/drupal_1/drupal/credentials/rhd.settings.php:/var/www/drupal/web/sites/default/rhd.settings.php
+    - /tmp/drupal-workspace/drupal_1/drupal/files:/var/www/drupal/web/sites/default/files
+    - /tmp/drupal-workspace/drupal_1/drupal/config/active:/var/www/drupal/web/config/active
+    - backups:/drupal-backups
+    depends_on:
+      - mysql
+
+  cleanup_env:
+    build:
+      context: ../../../
+    user: root
+    entrypoint: ["/bin/bash", "-c", "rm -rf /drupal-workspace/*"]
+    volumes:
+      - /tmp/drupal-workspace:/drupal-workspace
+
+  mysql:
+    image: mariadb:10.3.9-bionic
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=drupal_1
+    expose:
+      - 3306
+volumes:
+  backups:
+    driver: local

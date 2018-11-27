@@ -23,22 +23,9 @@
       with_items:
         - '{{ work_dir }}'
         - '/drupal-workspace/{{ drupal_deployment_dir }}/seed'
-        - '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/theme'
         - '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/files'
         - '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/config'
         - '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/credentials'
-
-# TODO - Discussion around what is the best mechanism for backups and env seeding. This part of the playbook uses git lfs to clone the most recent backup. Bit slow, can we use disk?
-
-#    - name: Install credentials for backup retrieval
-#      template:
-#        src: 'templates/{{ rhdp_environment }}/backups/netrc.j2'
-#        dest: '/root/.netrc'
-#
-#    - name: Retrieve the latest backup to seed the environment
-#      shell: 'git lfs install && git lfs clone https://github.com/redhat-developer/rhd-backups.git'
-#      args:
-#        chdir: '/drupal-workspace/{{ drupal_deployment_dir }}/seed'
 
     - name: Create the database for this deployment
       mysql_db:
