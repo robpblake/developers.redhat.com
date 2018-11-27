@@ -175,10 +175,17 @@ objects:
             subPath: drupal_${DEPLOYMENT_ID}/drupal/config/active
           - name: drupal-ssl
             mountPath: /ssl
+          - name: drupal-backups
+            mountPath: /drupal-backups
+          - name: environment-secrets
+            mountPath: /credentials/ansible
         volumes:
         - name: drupal-workspace
           persistentVolumeClaim:
             claimName: drupal-workspace
+        - name: drupal-backups
+          persistentVolumeClaim:
+            claimName: drupal-backups
         - name: environment-secrets
           secret:
             secretName: environment-secrets

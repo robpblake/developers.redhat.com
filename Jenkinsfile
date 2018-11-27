@@ -43,6 +43,19 @@ node {
                 }
         }
 
+        stage('Backup existing Deployment') {
+            openshift.withCluster() {
+                openshift.withProject() {
+                    def configMap = openshift.selector('configmap/drupal-deployments').object()
+                    currentDeploymentId = configMap.data['CURRENT_DEPLOYMENT_ID'].toInteger()
+
+                    if(currentDeploymentId != 0) {
+                        echo "Backing up existing deployment '${currentDeploymentId}'..."
+                        openshift.exec("drupal-deployment-${currentDeploymentId}-0 -c drupal -- /bin/bash -c \"source /etc/scl_enable && ansible-playbook /ansible/backup-drupal.yml\"")
+                    }
+                }
+            }
+        }
 
 
         stage('Deploy Drupal') {
@@ -55,9 +68,14 @@ node {
                     internalDockerRegistry = imageStream.object().status['dockerImageRepository'].split('/')[0] + "/${env.PROJECT_NAME}/"
                     openshift.create(openshift.process(readFile(file:'openshift/drupal-statefulset.yml'), '-p', "DEPLOYMENT_ID=${deploymentId}", "IMAGE_REPOSITORY=${internalDockerRegistry}", "DRUPAL_DATA_IMAGE_REPOSITORY=${internalDockerRegistry}"))
 
-                    /*
-                        TODO: need to work out how to wait on a rollout of a StatefulSet
-                    */
+                    def replicas = getCurrentReplicaCount(openshift, deploymentId)
+                    while(replicas['ready'] != replicas['desired']) {
+                        echo "Waiting for deployment '${deploymentId}' to reach desired replica count of '${replicas['desired']}'. Currently at '${replicas['ready']}'."
+                        sleep 10
+                        replicas = getCurrentReplicaCount(openshift, deploymentId)
+                    }
+
+                    echo "Statefulset for deployment '${deploymentId}' has reached desired replica count of '${replicas['desired']}'."
                 }
             }
         }
@@ -98,4 +116,16 @@ node {
             }
         }
    }
+}
+
+/*
+    Returns details of the replicas within a statefulset for a given deployment, specifically how many are desired and
+    how many are currently ready.
+*/
+def getCurrentReplicaCount(openshift, deploymentId) {
+    def replicas = openshift.raw("get statefulset drupal-deployment-${deploymentId} --template={{.status.replicas}}={{.status.readyReplicas}}")
+    return [
+        desired: replicas.out.split('=')[0].toInteger(),
+        ready: replicas.out.split('=')[1].toInteger()
+    ]
 }
