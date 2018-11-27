@@ -123,9 +123,12 @@ node {
     how many are currently ready.
 */
 def getCurrentReplicaCount(openshift, deploymentId) {
-    def replicas = openshift.raw("get statefulset drupal-deployment-${deploymentId} --template={{.status.replicas}}={{.status.readyReplicas}}")
+    def replicas = openshift.raw("get statefulset drupal-deployment-${deploymentId} --template={{.spec.replicas}}={{.status.readyReplicas}}")
+
+    def readyReplicas = replicas.out.split('=')[1]
+
     return [
         desired: replicas.out.split('=')[0].toInteger(),
-        ready: replicas.out.split('=')[1].toInteger()
+        ready: readyReplicas.equals('<no value>') ? 0 : readyReplicas.toInteger()
     ]
 }
