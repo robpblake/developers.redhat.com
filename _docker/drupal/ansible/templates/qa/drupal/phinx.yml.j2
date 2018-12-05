@@ -7,7 +7,7 @@ environments:
     automated:
         adapter: mysql
         host: {{ drupal_db_host }}
-        name: drupal_{{ drupal_deployment_id }}
+        name: {{ deployment_dbs[0] }}
         user: {{ drupal_db_user }}
         pass: {{ drupal_db_password }}
         port: 3306

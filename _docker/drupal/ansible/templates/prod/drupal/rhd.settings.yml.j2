@@ -23,7 +23,7 @@ database:
   port: '3306'
   username: '{{ drupal_db_user }}'
   password: '{{ drupal_db_password }}'
-  name: 'drupal_{{ drupal_deployment_id }}'
+  name: '{{ deployment_dbs[0] }}'
 dtm_code: https://www.redhat.com/dtm-staging.js
 sentry_track: false
 sentry_script: 'https://cdn.ravenjs.com/3.24.0/raven.min.js'

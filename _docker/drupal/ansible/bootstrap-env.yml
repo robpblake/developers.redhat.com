@@ -6,8 +6,6 @@
 ---
 - hosts: localhost
   connection: local
-  vars:
-
   vars_files:
     - "/credentials/ansible/env.yml"
     - 'vars/common/drupal/vars.yml'
