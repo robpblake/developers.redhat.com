@@ -11,7 +11,7 @@
     - work_dir: "/drupal-workspace/{{ drupal_deployment_dir }}/work"
   vars_files:
     - "/credentials/ansible/env.yml"
-    - "vars/{{ rhdp_environment }}/drupal/vars.yml"
+    - "vars/common/drupal/vars.yml"
   tasks:
     - name: Rebuild the Drupal Cache
       shell: 'drush cr && touch {{ work_dir }}/drupal.cr.do.not.delete'

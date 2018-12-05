@@ -9,6 +9,7 @@ services:
     - DEPLOYMENT_ID=1
     volumes:
     - /tmp/drupal-workspace:/drupal-workspace
+    - backups:/drupal-backups
 
   bootstrap_env:
     build:
@@ -21,6 +22,7 @@ services:
     - ../../:/ansible
     - ../env.yml:/credentials/ansible/env.yml
     - /tmp/drupal-workspace:/drupal-workspace
+    - backups:/drupal-backups
     depends_on:
     - mysql
 

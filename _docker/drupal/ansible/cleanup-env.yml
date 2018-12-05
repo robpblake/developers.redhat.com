@@ -1,65 +1,50 @@
+#
+# Playbook that deletes all resources associated with a Drupal Deployment.
+#
 ---
 - hosts: localhost
   connection: local
   become: no
-  vars:
-    deployment_ids_to_reclaim: []
-    deployment_dirs_to_reclaim: []
   vars_files:
     - "/credentials/ansible/env.yml"
-    - "vars/{{ rhdp_environment }}/drupal/vars.yml"
+    - "vars/common/drupal/vars.yml"
   tasks:
-    - name: Generate the list of deployments that should not be reclaimed
-      shell: "jq '.deployments.current.deployment_id, .deployments.next.deployment_id, .deployments.previous.deployment_id' /deployments/deployments.json"
-      register: active_deployments
-
-    - set_fact:
-        current_deployment_id: "{{ active_deployments.stdout_lines[0] }}"
-        next_deployment_id: "{{ active_deployments.stdout_lines[1] }}"
-        previous_deployment_id: "{{ active_deployments.stdout_lines[2] }}"
-
+    #
+    # If the deployment has a database, it will be at recorded at db_name_file: "{{ work_dir }}/db_name.DO_NOT_DELETE".
+    # We need to be able to read this file in order to drop the database for this deployment.
+    #
+    - name: Check to see if the database name file exists
+      stat:
+        path: "{{ db_name_file }}"
+      register: db_name
     - debug:
-        msg: "Deployment '{{ item.deployment_id }}' will not be reclaimed as it is referenced in '/deployments/deployments.json' as the '{{ item.deployment_name }}' deployment."
-      with_items:
-        - { deployment_id: "{{ current_deployment_id }}" , deployment_name: 'current' }
-        - { deployment_id: "{{ next_deployment_id }}" , deployment_name: 'next' }
-        - { deployment_id: "{{ previous_deployment_id }}" , deployment_name: 'previous' }
+        msg: "There is no database name file at '{{ db_name_file }}' for this deployment. Unable to drop database.'"
+      when: db_name.stat.exists == false
 
-    - name: Determine the ids of deployments that can have their resources reclaimed
-      shell: 'find /drupal-workspace -maxdepth 1 -type d -name "drupal_*" ! -name "drupal_{{ current_deployment_id }}" ! -name "drupal_{{ next_deployment_id }}" ! -name "drupal_{{ previous_deployment_id }}"'
-      register: deployments_to_clean
+    #
+    # Read in the name of the database that we need to drop
+    #
+    - name: Read the name of the database used by this deployment
+      set_fact:
+        deployment_db: "{{lookup('file', db_name_file)}}"
+      when: db_name.stat.exists
 
-    - set_fact:
-        deployment_ids_to_reclaim: "{{ deployment_ids_to_reclaim }} + [{{ item.split('_')[1] }}]"
-      with_items:
-        - "{{ deployments_to_clean.stdout_lines }} "
-      when: deployments_to_clean.stdout_lines|length > 0
-
-    - debug:
-        msg: "There are currently no old deployments to reclaim"
-      when: deployment_ids_to_reclaim|length == 0
-
-    - meta: end_play
-      when: deployment_ids_to_reclaim|length == 0
-
-    - debug:
-        msg: "Working directory '/drupal-workspace/{{ item }}' will be removed."
-      with_items:
-        - "{{ deployment_dirs_to_reclaim }}"
-
-    - name: Delete the working directories for any old deployments
-      file:
-        path: "/drupal-workspace/drupal_{{ item }}"
-        state: absent
-      with_items:
-        - "{{ deployment_ids_to_reclaim }}"
-
-    - name: Delete the database for any old deployments
+    #
+    # Drop the database
+    #
+    - name: Drop the database for this deployment
       mysql_db:
         login_host: "{{ drupal_db_host }}"
         login_user: "{{ drupal_db_user }}"
         login_password: "{{ drupal_db_password }}"
-        name: "drupal_{{ item }}"
+        name: "{{ deployment_db }}"
         state: absent
-      with_items:
-      - "{{ deployment_ids_to_reclaim }}"
+      when: db_name.stat.exists
+
+    #
+    # Delete the working directory for this deployment
+    #
+    - name: Delete the working directory for this deployment
+      file:
+        path: "/drupal-workspace/{{ drupal_deployment_dir }}"
+        state: absent

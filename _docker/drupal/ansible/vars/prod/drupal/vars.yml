@@ -1,3 +1,0 @@
-drupal_deployment_id: "{{ lookup('env', 'DEPLOYMENT_ID') }}"
-drupal_deployment_dir: 'drupal_{{ drupal_deployment_id }}'
-drupal_backup_dir: "/drupal-backups"

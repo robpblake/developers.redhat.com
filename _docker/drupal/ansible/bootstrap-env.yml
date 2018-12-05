@@ -7,13 +7,13 @@
 - hosts: localhost
   connection: local
   vars:
-    - work_dir: "/drupal-workspace/{{ drupal_deployment_dir }}/work"
+
   vars_files:
     - "/credentials/ansible/env.yml"
-    - 'vars/{{ rhdp_environment }}/drupal/vars.yml'
+    - 'vars/common/drupal/vars.yml'
   become: no
   tasks:
-    - name: Create the working directory structure for this deployment of Drupal
+    - name: "Create the working directory structure for this deployment of Drupal."
       file:
         path: '{{ item }}'
         group: 'root'
@@ -21,29 +21,144 @@
         recurse: yes
         mode: 0775
       with_items:
-        - '{{ work_dir }}'
-        - '/drupal-workspace/{{ drupal_deployment_dir }}/seed'
-        - '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/files'
-        - '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/config'
-        - '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/credentials'
+      - '{{ work_dir }}'
+      - '{{ drupal_dir }}/credentials'
 
-    - name: Create the database for this deployment
+    - name: "Seed: Determine if we have already selected a backup to seed this environment."
+      stat:
+        path: "{{ backup_name_file }}"
+      register: chosen_backup
+
+    - name: "Seed: Locate the most recent backup to seed this environment."
+      find:
+        paths: "{{ drupal_backup_dir }}"
+        contains: "drupal_*"
+        file_type: 'directory'
+      register: drupal_backups
+      when: chosen_backup.stat.exists == false
+
+    - name: "Seed: Fail the deployment if no seed data is available"
+      fail:
+        msg: "There are no candidate backups at '{{ drupal_backup_dir }}' that can be used to seed this environment."
+      when: chosen_backup.stat.exists == false and drupal_backups.matched == 0
+
+    - name: "Seed: Read details of the previously chosen backup for this environment."
+      set_fact:
+        drupal_seed: "{{lookup('file', backup_name_file)}}"
+      when: chosen_backup.stat.exists
+
+    - name: "Seed: Select the most recent backup to seed this environment."
+      set_fact:
+        drupal_seed: "{{ (drupal_backups.files | sort(attribute='mtime',reverse=true) | first).path }}"
+      when: chosen_backup.stat.exists == false
+
+    - name: "Seed: Write details of chosen backup to working dir for deployment."
+      copy:
+        content: "{{ drupal_seed }}"
+        dest: "{{ backup_name_file }}"
+        group: 'root'
+        mode: '0770'
+      when: chosen_backup.stat.exists == false
+
+    - debug:
+        msg: "Using backup at '{{ drupal_seed }}' to seed this environment."
+
+    - name: "Seed: Extract the Drupal filesystem backup into the working directory of this deployment."
+      unarchive:
+        src: "{{ drupal_seed }}/drupal-filesystem.tar.gz"
+        dest: "{{ drupal_dir }}"
+        group: 'root'
+        mode: '0770'
+        creates: "{{ drupal_dir }}/config/active/views.settings.yml"
+
+
+    #
+    # Deployments have multiple replicas and need to be idempotent. The first replica will chose the db to be used
+    # by this deployment and therefore we need to write the choice to disk to prevent a deployment claiming a
+    # database-per-replica.
+    #
+    # The database choice will be written to the file {{ work_dir }}/db_name.DO_NOT_DELETE, so here we check to see
+    # if that file exists
+    #
+    - name: "Database: Determine if we have already chosen the database for this deployment."
+      stat:
+        path: "{{ db_name_file }}"
+      register: chosen_db
+
+    #
+    # If the file {{ work_dir }}/db_name.DO_NOT_DELETE doesn't exist, work out what databases are already in use
+    #
+    - name: "Database: Determine which databases are already being used by other deployments in this environment."
+      shell: "mysql -sN -h {{ drupal_db_host }} -u {{ drupal_db_user }} -p{{ drupal_db_password }} -e \"select schema_name from INFORMATION_SCHEMA.SCHEMATA where schema_name like 'developer_drupal%' order by schema_name asc\""
+      register: used_dbs
+      when: chosen_db.stat.exists == false
+
+    #
+    # Select a database name from the list of available names in this environment. We only do this if
+    # {{ work_dir }}/db_name.DO_NOT_DELETE does not exist
+    #
+    - name: "Database: Set the variable for the database name if have not yet chosen for this deployment."
+      set_fact:
+        deployment_dbs: "{{ (usable_db_names | difference(used_dbs.stdout_lines))}}"
+      when: chosen_db.stat.exists == false
+
+    #
+    # If {{ work_dir }}/db_name.DO_NOT_DELETE does exist, read in the database name from the file
+    #
+    - name: "Database: Set the variable for the database name if we have already chosen the database for this deployment"
+      set_fact:
+        deployment_dbs: "{{[lookup('file', db_name_file)]}}"
+      when: chosen_db.stat.exists
+
+    #
+    # If we've been unable to choose a database, then fail this deployment. We can't proceed.
+    #
+    - name: "Database: Fail the deployment if we are unable to select a database."
+      fail:
+        msg: "There are no available databases for this deployment. 'developer_drupal_1' through 'developer_drupal_10' are all in use"
+      when: (deployment_dbs | length) == 0
+
+    #
+    # Ensure that the name of our chosen database is written to disk. This only occurs if {{ work_dir }}/db_name.DO_NOT_DELETE
+    # does not already exist.
+    #
+    - name: "Database: Persist the chosen database for this deployment to disk."
+      copy:
+        content: "{{ deployment_dbs[0] }}"
+        dest: "{{ db_name_file }}"
+        group: 'root'
+        mode: '0770'
+      when: chosen_db.stat.exists == false
+
+    - debug:
+        msg: "Database: The database being used by this deployment is '{{ deployment_dbs[0] }}'"
+
+    #
+    # Create the database
+    #
+    - name: "Database: Create the database for this deployment of Drupal."
       mysql_db:
-        name: '{{ drupal_deployment_dir }}'
+        name: '{{ deployment_dbs[0] }}'
         state: present
         login_password: '{{ drupal_db_password }}'
         login_user: '{{ drupal_db_user }}'
         login_host: '{{ drupal_db_host }}'
 
-    - name: Check for presence of Drupal tables in the database
-      shell: "mysql -sN -h {{ drupal_db_host }} -u {{ drupal_db_user }} -p{{ drupal_db_password }} -e \"select count(*) from information_schema.tables where table_schema = '{{ drupal_deployment_dir }}' and table_name in ('lightning_node','lightning_node__body','lightning_taxonomy_index')\" {{ drupal_deployment_dir }}"
+    #
+    # Check to see what tables are within the database for this deployment.
+    #
+    - name: "Database: Check for presence of Drupal tables in the database to see if we need to import the SQL dump."
+      shell: "mysql -sN -h {{ drupal_db_host }} -u {{ drupal_db_user }} -p{{ drupal_db_password }} -e \"select count(*) from information_schema.tables where table_schema = '{{ deployment_dbs[0] }}' and table_name in ('lightning_node','lightning_node__body','lightning_taxonomy_index')\" {{ deployment_dbs[0] }}"
       register: drupal_db
 
-    - name: Import the most recent Drupal database dump into the database for this deployment
+    #
+    # Import the latest production database backup into the database for this deployment.
+    #
+    - name: "Database: Import the most recent Drupal database dump into the database for this deployment."
       mysql_db:
-        name: '{{ drupal_deployment_dir }}'
+        name: '{{ deployment_dbs[0] }}'
         state: import
-        target: '/drupal-workspace/{{ drupal_deployment_dir }}/seed/db/drupal-db-sql.gz'
+        target: '{{ drupal_seed }}/drupal-db.sql.gz'
         login_host: '{{ drupal_db_host }}'
         login_user: '{{ drupal_db_user }}'
         login_password: '{{ drupal_db_password }}'

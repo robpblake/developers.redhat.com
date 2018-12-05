@@ -4,11 +4,11 @@
   become: no
   vars_files:
     - "/credentials/ansible/env.yml"
-    - "vars/{{ rhdp_environment }}/drupal/vars.yml"
+    - "vars/common/drupal/vars.yml"
   tasks:
     - name: Generate timestamp for run of backup
       set_fact:
-        backup_dir: "{{ drupal_backup_dir }}/{{ '%Y-%m-%d-%H-%M-%S' | strftime(ansible_date_time.epoch) }}"
+        backup_dir: "{{ drupal_backup_dir }}/{{ drupal_deployment_dir }}-{{ '%Y-%m-%d-%H-%M-%S' | strftime(ansible_date_time.epoch) }}"
 
     - debug:
         msg: "The backup directory will be '{{ backup_dir }}'"
