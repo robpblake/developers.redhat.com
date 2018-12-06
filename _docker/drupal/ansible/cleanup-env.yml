@@ -45,6 +45,4 @@
     # Delete the working directory for this deployment
     #
     - name: Delete the working directory for this deployment
-      file:
-        path: "/drupal-workspace/{{ drupal_deployment_dir }}"
-        state: absent
+      shell: "/bin/rm -rf /drupal-workspace/{{ drupal_deployment_dir }}/*"
