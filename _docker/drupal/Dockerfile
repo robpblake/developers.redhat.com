@@ -1,4 +1,4 @@
-FROM registry.paas.redhat.com/rhdp/rhdp-base
+FROM registry.paas.redhat.com/rhdp/developer-base
 USER root
 ARG composer_profile="production"
 CMD ["/var/www/drupal/run-httpd.sh"]
