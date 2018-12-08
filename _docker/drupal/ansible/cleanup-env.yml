@@ -29,6 +29,10 @@
         deployment_db: "{{lookup('file', db_name_file)}}"
       when: db_name.stat.exists
 
+    - debug:
+        msg: "Dropping database '{{ deployment_db }}'..."
+      when: db_name.stat.exists
+
     #
     # Drop the database
     #
