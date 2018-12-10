@@ -25,3 +25,8 @@ ini_set('memory_limit', '256M');
 
 /* Relax Transaction Isolation to READ-COMMITTED: https://www.drupal.org/project/drupal/issues/2833539  */
 $databases['default']['default']['init_commands']['isolation'] = "SET SESSION tx_isolation='READ-COMMITTED'";
+$settings['trusted_host_patterns'] = [
+    '^developers.dev.redhat.com',
+    '^previousdeveloperdrupal.ext.paas.dev.redhat.com',
+    '^nextdeveloperdrupal.ext.paas.dev.redhat.com'
+]
