@@ -12,3 +12,7 @@ usable_db_names:
   - 'developer_drupal_4'
   - 'developer_drupal_5'
   - 'developer_drupal_6'
+  - 'developer_drupal_7'
+  - 'developer_drupal_8'
+  - 'developer_drupal_9'
+  - 'developer_drupal_10'
