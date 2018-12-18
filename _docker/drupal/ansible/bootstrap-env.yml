@@ -147,7 +147,7 @@
     # Check to see what tables are within the database for this deployment.
     #
     - name: "Database: Check for presence of Drupal tables in the database to see if we need to import the SQL dump."
-      shell: "mysql -sN -h {{ drupal_db_host }} -u {{ drupal_db_user }} -p{{ drupal_db_password }} -e \"select count(*) from information_schema.tables where table_schema = '{{ deployment_dbs[0] }}' and table_name in ('lightning_node','lightning_node__body','lightning_taxonomy_index')\" {{ deployment_dbs[0] }}"
+      shell: "mysql --ssl-ca=/etc/pki/ca-trust/source/anchors/RH-IT-pki-validation-chain.pem -sN -h {{ drupal_db_host }} -u {{ drupal_db_user }} -p{{ drupal_db_password }} -e \"select count(*) from information_schema.tables where table_schema = '{{ deployment_dbs[0] }}' and table_name in ('lightning_node','lightning_node__body','lightning_taxonomy_index')\" {{ deployment_dbs[0] }}"
       register: drupal_db
 
     #
