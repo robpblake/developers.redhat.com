@@ -141,6 +141,7 @@
         login_password: '{{ drupal_db_password }}'
         login_user: '{{ drupal_db_user }}'
         login_host: '{{ drupal_db_host }}'
+        ssl_ca: '/etc/pki/ca-trust/source/anchors/RH-IT-pki-validation-chain.pem'
 
     #
     # Check to see what tables are within the database for this deployment.
