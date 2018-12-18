@@ -154,15 +154,17 @@
     # Import the latest production database backup into the database for this deployment.
     #
     - name: "Database: Import the most recent Drupal database dump into the database for this deployment."
-      mysql_db:
-        name: '{{ deployment_dbs[0] }}'
-        state: import
-        target: '{{ drupal_seed }}/drupal-db.sql.gz'
-        login_host: '{{ drupal_db_host }}'
-        login_user: '{{ drupal_db_user }}'
-        login_password: '{{ drupal_db_password }}'
-        ssl_ca: '/etc/pki/ca-trust/source/anchors/RH-IT-pki-validation-chain.pem'
+      shell: "gunzip -c {{ drupal_seed }}/drupal-db.sql.gz | mysql --ssl-ca=/etc/pki/ca-trust/source/anchors/RH-IT-pki-validation-chain.pem -h {{ drupal_db_host }} -p{{ drupal_db_password }} -u {{ drupal_db_user }} {{ deployment_dbs[0] }}"
       when: drupal_db.rc == 0 and drupal_db.stdout != "3"
+#      mysql_db:
+#        name: '{{ deployment_dbs[0] }}'
+#        state: import
+#        target: '{{ drupal_seed }}/drupal-db.sql.gz'
+#        login_host: '{{ drupal_db_host }}'
+#        login_user: '{{ drupal_db_user }}'
+#        login_password: '{{ drupal_db_password }}'
+#        ssl_ca: '/etc/pki/ca-trust/source/anchors/RH-IT-pki-validation-chain.pem'
+
 
     #
     # TODO - do we really need to do this for every deployment? The only thing we're using from the repo is the /images
