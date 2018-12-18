@@ -1,4 +1,4 @@
-FROM registry.paas.redhat.com/rhdp/rhdp-base
+FROM registry.paas.redhat.com/rhdp/developer-base
 USER root
 ARG composer_profile="production"
 CMD ["/var/www/drupal/run-httpd.sh"]
@@ -23,6 +23,7 @@ RUN cd /var/www/drupal \
        fi
 
 # Copy in the custom things we create
+COPY drupal-filesystem/drush /var/www/drupal/drush
 COPY drupal-filesystem/web/sites/default /var/www/drupal/web/sites/default
 COPY drupal-filesystem/web/modules/custom /var/www/drupal/web/modules/custom
 COPY drupal-filesystem/web/themes/custom /var/www/drupal/web/themes/custom

@@ -1,10 +1,10 @@
 version: '3'
 services:
   update-composer:
-    image: robpblake/rhdp-base:1
+    image: registry.paas.redhat.com/rhdp/rhdp-base
     volumes:
       - ../drupal-filesystem/composer.json:/drupal/composer.json
       - ../drupal-filesystem/composer.lock:/drupal/composer.lock
       - ../drupal-filesystem/scripts/ScriptHandler.php:/drupal/scripts/ScriptHandler.php
-    entrypoint: ["composer", "update"]
+    entrypoint: ["/bin/bash", "-c", "composer update"]
     working_dir: /drupal

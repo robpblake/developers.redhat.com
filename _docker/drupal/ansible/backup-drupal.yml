@@ -1,0 +1,30 @@
+---
+- hosts: localhost
+  connection: local
+  become: no
+  vars_files:
+    - "/credentials/ansible/env.yml"
+    - "vars/common/drupal/vars.yml"
+  tasks:
+    - name: Generate timestamp for run of backup
+      set_fact:
+        backup_dir: "{{ drupal_backup_dir }}/{{ drupal_deployment_dir }}-{{ '%Y-%m-%d-%H-%M-%S' | strftime(ansible_date_time.epoch) }}"
+
+    - debug:
+        msg: "The backup directory will be '{{ backup_dir }}'"
+
+    - name: Create the directory to store backup artifacts
+      file:
+        path: '{{ backup_dir }}'
+        group: 'root'
+        state: directory
+        recurse: yes
+        mode: 0770
+
+    - name: Perform a backup of the Drupal database using Drush
+      shell: "drush sql:dump --gzip --result-file='{{ backup_dir }}/drupal-db.sql'"
+      args:
+        chdir: '/var/www/drupal'
+
+    - name: Perform a backup of the Drupal filesystem using tar
+      shell: "tar -cvzf {{ backup_dir }}/drupal-filesystem.tar.gz -C /var/www/drupal/web config/active sites/default/files"

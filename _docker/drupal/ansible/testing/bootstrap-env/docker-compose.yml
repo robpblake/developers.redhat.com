@@ -8,6 +8,7 @@ services:
       - DEPLOYMENT_ID=1
     volumes:
       - drupal_workspace:/drupal-workspace
+      - drupal_backups:/drupal-backups
 
   bootstrap_env:
     image: registry.paas.redhat.com/rhdp/rhdp-base
@@ -19,6 +20,7 @@ services:
       - ../../:/ansible
       - ../env.yml:/credentials/ansible/env.yml
       - drupal_workspace:/drupal-workspace
+      - drupal_backups:/drupal-backups
     depends_on:
       - mysql
 
@@ -26,9 +28,13 @@ services:
     image: mariadb:10.3.9-bionic
     environment:
       - MYSQL_ROOT_PASSWORD=password
+    ports:
+      - "3306:3306"
     expose:
       - 3306
 
 volumes:
   drupal_workspace:
+   driver: local
+  drupal_backups:
     driver: local

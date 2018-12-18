@@ -7,12 +7,14 @@
 - hosts: localhost
   connection: local
   become: no
-  vars:
-    - work_dir: "/drupal-workspace/{{ drupal_deployment_dir }}/work"
   vars_files:
     - "/credentials/ansible/env.yml"
-    - "vars/{{ rhdp_environment }}/drupal/vars.yml"
+    - "vars/common/drupal/vars.yml"
   tasks:
+    - name: "Database: Read the database name for this deployment."
+      set_fact:
+        deployment_dbs: "{{[lookup('file', db_name_file)]}}"
+
     - name: Rebuild the Drupal Cache
       shell: 'drush cr && touch {{ work_dir }}/drupal.cr.do.not.delete'
       register: drush_rc
@@ -69,7 +71,7 @@
         creates: "{{ work_dir }}/drupal.phinx.do.not.delete"
       environment:
         PHINX_DB_HOST: "{{ drupal_db_host }}"
-        PHINX_DB_NAME: "{{ drupal_deployment_dir }}"
+        PHINX_DB_NAME: "{{ deployment_dbs[0] }}"
         PHINX_DB_USER: "{{ drupal_db_user }}"
         PHINX_DB_PASSWORD: "{{ drupal_db_password }}"
     - debug:
