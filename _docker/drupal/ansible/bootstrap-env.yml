@@ -87,7 +87,7 @@
     # If the file {{ work_dir }}/db_name.DO_NOT_DELETE doesn't exist, work out what databases are already in use
     #
     - name: "Database: Determine which databases are already being used by other deployments in this environment."
-      shell: "mysql -sN -h {{ drupal_db_host }} -u {{ drupal_db_user }} -p{{ drupal_db_password }} -e \"select schema_name from INFORMATION_SCHEMA.SCHEMATA where schema_name like 'developer_drupal%' order by schema_name asc\""
+      shell: "mysql --ssl-ca=/etc/pki/ca-trust/source/anchors/RH-IT-pki-validation-chain.pem -sN -h {{ drupal_db_host }} -u {{ drupal_db_user }} -p{{ drupal_db_password }} -e \"select schema_name from INFORMATION_SCHEMA.SCHEMATA where schema_name like 'developer_drupal%' order by schema_name asc\""
       register: used_dbs
       when: chosen_db.stat.exists == false
 
@@ -161,6 +161,7 @@
         login_host: '{{ drupal_db_host }}'
         login_user: '{{ drupal_db_user }}'
         login_password: '{{ drupal_db_password }}'
+        ssl_ca: '/etc/pki/ca-trust/source/anchors/RH-IT-pki-validation-chain.pem'
       when: drupal_db.rc == 0 and drupal_db.stdout != "3"
 
     #
