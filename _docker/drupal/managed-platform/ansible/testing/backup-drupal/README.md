@@ -35,12 +35,3 @@ ansible-playbook backup-drupal.yml
 ```
 
 Backups will be stored into `/drupal-backups` on the container filesystem
-
-### Clean-up
-
-When you're finished, the following will completely clean your environment:
-
-```bash
-docker-compose down -v
-rm -rf /tmp/drupal-workspace
-```

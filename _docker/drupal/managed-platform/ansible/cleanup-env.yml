@@ -51,3 +51,5 @@
     #
     - name: Delete the working directory for this deployment
       shell: "/bin/rm -rf /drupal-workspace/{{ drupal_deployment_dir }}/*"
+      args:
+        warn: false

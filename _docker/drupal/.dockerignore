@@ -3,4 +3,4 @@ Dockerfile
 .ruby-version
 Gemfile
 Gemfile.lock
-ansible/testing
+managed-platform/ansible/testing

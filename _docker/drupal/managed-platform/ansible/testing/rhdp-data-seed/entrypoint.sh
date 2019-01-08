@@ -1,6 +1,7 @@
 # Used to see the demonstrator environment with data from the most recent backup of production.
 #!/bin/sh
 set -ex
+rm -rf /drupal-workspace/drupal_$DEPLOYMENT_ID/*
 if [ ! -d "/drupal-workspace/drupal_$DEPLOYMENT_ID/drupal/config/active" ]
 then
     BACKUP_DATE=`date -u '+%Y-%m-%d-%H-%M-%S'`

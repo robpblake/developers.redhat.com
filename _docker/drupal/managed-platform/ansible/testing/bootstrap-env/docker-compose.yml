@@ -11,7 +11,7 @@ services:
       - drupal_backups:/drupal-backups
 
   bootstrap_env:
-    image: registry.paas.redhat.com/rhdp/rhdp-base
+    image: registry.paas.redhat.com/rhdp/developer-base
     command: ["/bin/bash"]
     working_dir: "/ansible"
     environment:

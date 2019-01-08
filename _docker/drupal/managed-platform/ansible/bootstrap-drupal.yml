@@ -69,10 +69,5 @@
       args:
         chdir: '/var/www/drupal'
         creates: "{{ work_dir }}/drupal.phinx.do.not.delete"
-      environment:
-        PHINX_DB_HOST: "{{ drupal_db_host }}"
-        PHINX_DB_NAME: "{{ deployment_dbs[0] }}"
-        PHINX_DB_USER: "{{ drupal_db_user }}"
-        PHINX_DB_PASSWORD: "{{ drupal_db_password }}"
     - debug:
        var: phinx_migrate.stdout_lines
