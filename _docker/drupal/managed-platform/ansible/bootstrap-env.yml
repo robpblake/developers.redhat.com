@@ -67,8 +67,15 @@
         dest: "{{ drupal_dir }}"
         group: 'root'
         mode: '0770'
-        creates: "{{ drupal_dir }}/config/active/views.settings.yml"
+        creates: "{{ work_dir }}/drupal.unarchive.DO_NOT_DELETE"
 
+    - name: "Seed: Record extraction of Drupal configuration was successful"
+      copy:
+        content: ""
+        dest: "{{ work_dir }}/drupal.unarchive.DO_NOT_DELETE"
+        force: no
+        group: 'root'
+        mode: '0770'
 
     #
     # Deployments have multiple replicas and need to be idempotent. The first replica will chose the db to be used
@@ -144,11 +151,12 @@
         ssl_ca: '/etc/pki/ca-trust/source/anchors/RH-IT-pki-validation-chain.pem'
 
     #
-    # Check to see what tables are within the database for this deployment.
+    # Check to see if we've already successfully run the DB import
     #
     - name: "Database: Check for presence of Drupal tables in the database to see if we need to import the SQL dump."
-      shell: "mysql --ssl-ca=/etc/pki/ca-trust/source/anchors/RH-IT-pki-validation-chain.pem -sN -h {{ drupal_db_host }} -u {{ drupal_db_user }} -p{{ drupal_db_password }} -e \"select count(*) from information_schema.tables where table_schema = '{{ deployment_dbs[0] }}' and table_name in ('lightning_node','lightning_node__body','lightning_taxonomy_index')\" {{ deployment_dbs[0] }}"
-      register: drupal_db
+      stat:
+        path: "{{ work_dir }}/drupal.dbimport.DO_NOT_DELETE"
+      register: db_imported
 
     #
     # Import the latest production database backup into the database for this deployment.
@@ -157,7 +165,16 @@
     #
     - name: "Database: Import the most recent Drupal database dump into the database for this deployment."
       shell: "gunzip -c {{ drupal_seed }}/drupal-db.sql.gz | mysql --ssl-ca=/etc/pki/ca-trust/source/anchors/RH-IT-pki-validation-chain.pem -h {{ drupal_db_host }} -p{{ drupal_db_password }} -u {{ drupal_db_user }} {{ deployment_dbs[0] }}"
-      when: drupal_db.rc == 0 and drupal_db.stdout != "3"
+      when: db_imported.stat.exists == false
+
+    - name: "Database: Record successful import of database"
+      copy:
+        content: ""
+        dest: "{{ work_dir }}/drupal.dbimport.DO_NOT_DELETE"
+        force: no
+        group: 'root'
+        mode: '0770'
+
 
     #
     # TODO - do we really need to do this for every deployment? The only thing we're using from the repo is the /images

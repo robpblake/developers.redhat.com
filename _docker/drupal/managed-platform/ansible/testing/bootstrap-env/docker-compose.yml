@@ -9,6 +9,8 @@ services:
     volumes:
       - drupal_workspace:/drupal-workspace
       - drupal_backups:/drupal-backups
+    depends_on:
+      - mysql
 
   bootstrap_env:
     image: registry.paas.redhat.com/rhdp/developer-base
