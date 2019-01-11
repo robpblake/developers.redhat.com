@@ -6,7 +6,6 @@ EXPOSE 8080
 EXPOSE 8443
 WORKDIR /var/www/drupal
 RUN gem install asciidoctor -v 1.5.8
-COPY apache/drupal.conf /opt/rh/httpd24/root/etc/httpd/conf.d/drupal.conf
 
 # Copy in database migration files
 COPY drupal-filesystem/db-migrations /var/www/drupal/db-migrations
