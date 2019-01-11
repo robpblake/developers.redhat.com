@@ -1,7 +1,7 @@
 version: '3'
 services:
   update-composer:
-    image: registry.paas.redhat.com/rhdp/rhdp-base
+    image: registry.paas.redhat.com/rhdp/developer-base
     volumes:
       - ../drupal-filesystem/composer.json:/drupal/composer.json
       - ../drupal-filesystem/composer.lock:/drupal/composer.lock

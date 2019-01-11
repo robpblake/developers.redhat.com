@@ -147,4 +147,3 @@ openid_connect: 1.0.0-beta5
 keycloak: 1.3.0
 twig_tweak: 2.1.0
 imagecache_external: 1.0.0
-readonlymode: 1.0.0
