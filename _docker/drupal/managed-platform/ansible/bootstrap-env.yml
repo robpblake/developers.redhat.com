@@ -24,46 +24,65 @@
 
     - name: "Seed: Determine if we have already selected a backup to seed this environment."
       stat:
-        path: "{{ backup_name_file }}"
+        path: "{{ work_dir }}/current.backup"
       register: chosen_backup
 
-    - name: "Seed: Locate the most recent backup to seed this environment."
-      find:
-        paths: "{{ drupal_backup_dir }}"
-        contains: "drupal_*"
-        file_type: 'directory'
-      register: drupal_backups
+    - name: "Seed: Download current.backup pointer from S3"
+      aws_s3:
+        bucket: "{{ drupal_s3_bucket }}"
+        object: "current.backup"
+        dest: "{{ work_dir }}/current.backup"
+        mode: get
+        region: eu-west-1
+        aws_access_key: '{{ drupal_s3_access_key }}'
+        aws_secret_key: '{{ drupal_s3_secret_key }}'
       when: chosen_backup.stat.exists == false
-
-    - name: "Seed: Fail the deployment if no seed data is available"
-      fail:
-        msg: "There are no candidate backups at '{{ drupal_backup_dir }}' that can be used to seed this environment."
-      when: chosen_backup.stat.exists == false and drupal_backups.matched == 0
 
     - name: "Seed: Read details of the previously chosen backup for this environment."
       set_fact:
-        drupal_seed: "{{lookup('file', backup_name_file)}}"
-      when: chosen_backup.stat.exists
-
-    - name: "Seed: Select the most recent backup to seed this environment."
-      set_fact:
-        drupal_seed: "{{ (drupal_backups.files | sort(attribute='mtime',reverse=true) | first).path }}"
-      when: chosen_backup.stat.exists == false
-
-    - name: "Seed: Write details of chosen backup to working dir for deployment."
-      copy:
-        content: "{{ drupal_seed }}"
-        dest: "{{ backup_name_file }}"
-        group: 'root'
-        mode: '0770'
-      when: chosen_backup.stat.exists == false
+        drupal_seed: "{{lookup('file', '{{ work_dir }}/current.backup')}}"
 
     - debug:
         msg: "Using backup at '{{ drupal_seed }}' to seed this environment."
 
+    - name: "Seed: Determine if we have already successfully downloaded from S3."
+      stat:
+        path: "{{ work_dir }}/drupal.s3.DO_NOT_DELETE"
+      register: s3_downloads
+
+    - name: "Seed: Download drupal-filesystem.tar.gz from S3"
+      aws_s3:
+        bucket: "{{ drupal_s3_bucket }}"
+        object: "{{ drupal_seed }}/drupal-filesystem.tar.gz"
+        dest: "{{ work_dir }}/drupal-filesystem.tar.gz"
+        mode: get
+        region: eu-west-1
+        aws_access_key: '{{ drupal_s3_access_key }}'
+        aws_secret_key: '{{ drupal_s3_secret_key }}'
+      when: s3_downloads.stat.exists == false
+
+    - name: "Seed: Download drupal-db.sql.gz from S3"
+      aws_s3:
+        bucket: "{{ drupal_s3_bucket }}"
+        object: "{{ drupal_seed }}/drupal-db.sql.gz"
+        dest: "{{ work_dir }}/drupal-db.sql.gz"
+        mode: get
+        region: eu-west-1
+        aws_access_key: '{{ drupal_s3_access_key }}'
+        aws_secret_key: '{{ drupal_s3_secret_key }}'
+      when: s3_downloads.stat.exists == false
+
+    - name: "Seed: Record download of artifacts from S3"
+      copy:
+        content: ""
+        dest: "{{ work_dir }}/drupal.s3.DO_NOT_DELETE"
+        force: no
+        group: 'root'
+        mode: '0770'
+
     - name: "Seed: Extract the Drupal filesystem backup into the working directory of this deployment."
       unarchive:
-        src: "{{ drupal_seed }}/drupal-filesystem.tar.gz"
+        src: "{{ work_dir }}/drupal-filesystem.tar.gz"
         dest: "{{ drupal_dir }}"
         group: 'root'
         mode: '0770'
@@ -164,7 +183,7 @@
     # ssl_ca correctly when importing. I've filed an issue with Ansible: https://github.com/ansible/ansible/issues/50096
     #
     - name: "Database: Import the most recent Drupal database dump into the database for this deployment."
-      shell: "gunzip -c {{ drupal_seed }}/drupal-db.sql.gz | mysql --ssl-ca=/etc/pki/ca-trust/source/anchors/RH-IT-pki-validation-chain.pem -h {{ drupal_db_host }} -p{{ drupal_db_password }} -u {{ drupal_db_user }} {{ deployment_dbs[0] }}"
+      shell: "gunzip -c {{ work_dir }}/drupal-db.sql.gz | mysql --ssl-ca=/etc/pki/ca-trust/source/anchors/RH-IT-pki-validation-chain.pem -h {{ drupal_db_host }} -p{{ drupal_db_password }} -u {{ drupal_db_user }} {{ deployment_dbs[0] }}"
       when: db_imported.stat.exists == false
 
     - name: "Database: Record successful import of database"

@@ -2,18 +2,10 @@
 version: '3'
 services:
 
-  seed_env:
-    build:
-      context: ../rhdp-data-seed
-    environment:
-    - DEPLOYMENT_ID=1
-    volumes:
-    - ./drupal-workspace:/drupal-workspace
-    - backups:/drupal-backups
-
   bootstrap_env:
     build:
-      context: ../../../../Dockerfile.mp
+      context: ../../../../
+      dockerfile: Dockerfile.mp
     entrypoint: ["/bin/bash", "-c", "ansible-playbook bootstrap-env.yml"]
     working_dir: "/ansible"
     environment:
@@ -22,13 +14,13 @@ services:
     - ../../:/ansible
     - ../env.yml:/credentials/ansible/env.yml
     - ./drupal-workspace:/drupal-workspace
-    - backups:/drupal-backups
     depends_on:
     - mysql
 
   backup_drupal:
     build:
-      context: ../../../
+      context: ../../../../
+      dockerfile: Dockerfile.mp
     entrypoint: ["/bin/bash"]
     working_dir: "/ansible"
     user: root
@@ -39,9 +31,8 @@ services:
     - ../env.yml:/credentials/ansible/env.yml
     - ./drupal-workspace/drupal_1/drupal/credentials/rhd.settings.yml:/var/www/drupal/web/sites/default/rhd.settings.yml
     - ./drupal-workspace/drupal_1/drupal/credentials/rhd.settings.php:/var/www/drupal/web/sites/default/rhd.settings.php
-    - ./drupal-workspace/drupal_1/drupal/files:/var/www/drupal/web/sites/default/files
+    - ./drupal-workspace/drupal_1/drupal/sites/default/files:/var/www/drupal/web/sites/default/files
     - ./drupal-workspace/drupal_1/drupal/config/active:/var/www/drupal/web/config/active
-    - backups:/drupal-backups
     depends_on:
       - mysql
 
@@ -52,6 +43,3 @@ services:
       - MYSQL_DATABASE=drupal_1
     expose:
       - 3306
-volumes:
-  backups:
-    driver: local

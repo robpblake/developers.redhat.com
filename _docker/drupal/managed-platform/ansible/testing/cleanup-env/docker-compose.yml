@@ -1,27 +1,19 @@
 version: '3'
 services:
-  seed_env:
-    build:
-      context: ../rhdp-data-seed
-    environment:
-     - DEPLOYMENT_ID=1
-    volumes:
-     - drupal_workspace:/drupal-workspace
-     - drupal_backups:/drupal-backups
-    depends_on:
-     - mysql
 
   bootstrap_env:
-    image: registry.paas.redhat.com/rhdp/developer-base
+    build:
+      context: ../../../../
+      dockerfile: Dockerfile.mp
     command: ["/bin/bash", "-c", "ansible-playbook bootstrap-env.yml"]
     working_dir: "/ansible"
+    user: root
     environment:
      - DEPLOYMENT_ID=1
     volumes:
      - ../../:/ansible
      - ../env.yml:/credentials/ansible/env.yml
      - drupal_workspace:/drupal-workspace
-     - drupal_backups:/drupal-backups
     depends_on:
      - mysql
 
@@ -50,6 +42,4 @@ services:
 
 volumes:
   drupal_workspace:
-    driver: local
-  drupal_backups:
     driver: local
