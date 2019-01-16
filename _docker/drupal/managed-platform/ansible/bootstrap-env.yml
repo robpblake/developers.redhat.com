@@ -175,21 +175,6 @@
         group: 'root'
         mode: '0770'
 
-
-    #
-    # TODO - do we really need to do this for every deployment? The only thing we're using from the repo is the /images
-    # directory. Probably better to bake that into the Docker image on each build as it's only 19 meg.
-    #
-    - name: Clone the developers.redhat.com Git repository into the working directory of this deployment
-      git:
-        depth: 1
-        dest: '/drupal-workspace/{{ drupal_deployment_dir }}/developers.redhat.com'
-        force: yes
-        recursive: no
-        repo: '{{ rhdp_git_repo }}'
-        version: '{{ rhdp_git_branch }}'
-        update: no
-
     - name: Template the rhd.settings.php for mounting into Drupal
       template:
         src: 'templates/{{ rhdp_environment }}/drupal/rhd.settings.php.j2'
