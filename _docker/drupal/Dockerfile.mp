@@ -33,6 +33,9 @@ RUN cd /var/www/drupal/web/themes/custom/rhdp/rhd-frontend \
 # Copy in the Drupal configuration
 COPY drupal-filesystem/web/config/sync /var/www/drupal/web/config/sync
 
+# Copy in static resources
+COPY drupal-filesystem/static/ /var/www/drupal/web/
+
 # Copy in Managed-Platform specific Configuration
 COPY managed-platform/ /
 
