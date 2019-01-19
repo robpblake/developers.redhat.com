@@ -15,3 +15,4 @@ managed-platform/ansible/*.retry
 managed-platform/ansible/testing/bootstrap-drupal/drupal-workspace
 managed-platform/ansible/testing/backup-drupal/drupal-workspace
 managed-platform/ansible/testing/cleanup-env/drupal-workspace
+managed-platform/ansible/testing/backup-s3-sync/env.yml

@@ -2,6 +2,14 @@
 version: '3'
 services:
 
+  local_seed:
+    build:
+      context: ../rhdp-data-seed
+    environment:
+      - DEPLOYMENT_ID=1
+    volumes:
+      - drupal-workspace:/drupal-workspace
+
   bootstrap_env:
     build:
       context: ../../../../

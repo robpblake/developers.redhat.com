@@ -41,35 +41,32 @@
     - name: Perform a backup of the Drupal filesystem using tar
       shell: "tar -cvzf {{ backup_dir }}/drupal-filesystem.tar.gz -C /var/www/drupal/web config/active sites/default/files"
 
+    #
+    # Ideally we'd be using the Ansible aws_s3 module to perform the uploads, but it makes certain assumptions about your
+    # S3 permissions that are not compatible with everyone:
+    #
+    # https://github.com/ansible/ansible/issues/48050
+    #
+    # Instead we will use the aws cli to perform uploads to S3
+    #
+
     - name: Upload database backup to S3
-      aws_s3:
-        bucket: "{{ drupal_s3_bucket }}"
-        object: "{{ backup_name}}/drupal-db.sql.gz"
-        src: "{{ backup_dir }}/drupal-db.sql.gz"
-        mode: put
-        region: eu-west-1
-        aws_access_key: '{{ drupal_s3_access_key }}'
-        aws_secret_key: '{{ drupal_s3_secret_key }}'
+      shell: "aws s3 cp {{ backup_dir }}/drupal-db.sql.gz s3://{{ drupal_s3_bucket }}/{{ backup_name }}/drupal-db.sql.gz"
+      environment:
+        - AWS_ACCESS_KEY_ID: "{{ drupal_s3_access_key }}"
+        - AWS_SECRET_ACCESS_KEY: "{{ drupal_s3_secret_key }}"
 
     - name: Upload filesystem backup to S3
-      aws_s3:
-        bucket: "{{ drupal_s3_bucket }}"
-        object: "{{ backup_name}}/drupal-filesystem.tar.gz"
-        src: "{{ backup_dir }}/drupal-filesystem.tar.gz"
-        mode: put
-        region: eu-west-1
-        aws_access_key: '{{ drupal_s3_access_key }}'
-        aws_secret_key: '{{ drupal_s3_secret_key }}'
+      shell: "aws s3 cp {{ backup_dir }}/drupal-filesystem.tar.gz s3://{{ drupal_s3_bucket }}/{{ backup_name }}/drupal-filesystem.tar.gz"
+      environment:
+      - AWS_ACCESS_KEY_ID: "{{ drupal_s3_access_key }}"
+      - AWS_SECRET_ACCESS_KEY: "{{ drupal_s3_secret_key }}"
 
     - name: Record the latest backup in S3
-      aws_s3:
-        bucket: "{{ drupal_s3_bucket }}"
-        object: "current.backup"
-        src: "{{ backup_dir }}/current.backup"
-        mode: put
-        region: eu-west-1
-        aws_access_key: '{{ drupal_s3_access_key }}'
-        aws_secret_key: '{{ drupal_s3_secret_key }}'
+      shell: "aws s3 cp {{ backup_dir }}/current.backup s3://{{ drupal_s3_bucket }}/current.backup"
+      environment:
+      - AWS_ACCESS_KEY_ID: "{{ drupal_s3_access_key }}"
+      - AWS_SECRET_ACCESS_KEY: "{{ drupal_s3_secret_key }}"
 
     - name: Cleanup backup directory
       file:
