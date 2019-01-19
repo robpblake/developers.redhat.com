@@ -19,6 +19,7 @@ services:
       dockerfile: Dockerfile.mp
     entrypoint: ["/bin/bash", "-c", "ansible-playbook bootstrap-env.yml"]
     working_dir: "/ansible"
+    user: root
     environment:
     - DEPLOYMENT_ID=sync
     volumes:
