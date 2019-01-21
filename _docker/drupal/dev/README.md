@@ -69,6 +69,27 @@ instance.
 The configuration is also immediately copied into the `_docker/drupal/drupal-filesystem/web/config/sync`, so it's just a case
 of verifying the changes and then committing and pushing your pull request.
 
+### Working with Drupal
+
+The best way to work with Drupal is to use `drush` to inspect settings etc. `drush` is installed into the Drupal container
+and configured to work out-of-the-box with the running Drupal instance.
+
+To connect to Drupal, simply use the following:
+
+```bash
+bash run-drupal-connect.sh
+```
+
+You're now attached to the Drupal container and can run all of the `drush` commands.
+
+So for example to inspect the settings for the `openid_connect` module:
+
+```bash
+bash run-drupal-connect.sh
+drush cget openid_connect.settings.keycloak --include-overridden
+```
+
+When you've finished working with Drupal, simply type `exit` to leave the container.
 
 ### Tidying up
 

@@ -20,3 +20,4 @@ managed-platform/ansible/testing/backup-s3-sync/env.yml
 dev/localhost.pem
 dev/localhost-key.pem
 dev/drupal-workspace
+dev/edgerc
