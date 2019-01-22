@@ -1,10 +1,14 @@
 version: '2'
 services:
   update-composer:
-    image: registry.paas.redhat.com/rhdp/developer-base
+    build:
+      context: ../
+      dockerfile: Dockerfile.mp
+    user: root
     volumes:
       - ../drupal-filesystem/composer.json:/drupal/composer.json
       - ../drupal-filesystem/composer.lock:/drupal/composer.lock
+      - ../drupal-filesystem/patches:/drupal/patches
       - ../drupal-filesystem/scripts/ScriptHandler.php:/drupal/scripts/ScriptHandler.php
     entrypoint: ["/bin/bash", "-c", "composer update"]
     working_dir: /drupal

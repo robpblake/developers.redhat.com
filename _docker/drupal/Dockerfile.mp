@@ -11,6 +11,7 @@ RUN gem install asciidoctor -v 1.5.8
 COPY drupal-filesystem/db-migrations /var/www/drupal/db-migrations
 
 # Run composer to install Drupal and required dependencies
+COPY drupal-filesystem/patches /var/www/drupal/patches
 COPY drupal-filesystem/scripts/ScriptHandler.php /var/www/drupal/scripts/
 COPY drupal-filesystem/composer.json drupal-filesystem/composer.lock /var/www/drupal/
 RUN cd /var/www/drupal \
