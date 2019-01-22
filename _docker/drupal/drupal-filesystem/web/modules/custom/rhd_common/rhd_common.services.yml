@@ -2,3 +2,7 @@ services:
   rhd_common.product_page_controller:
     class: Drupal\rhd_common\Controller\ProductPageController
     arguments: ['@entity.query', '@database', '@entity_type.manager', '@renderer']
+  rhd_common.disable_auth_routes_route_subscriber:
+    class: Drupal\rhd_common\Routing\DisableAuthRoutesRouteSubscriber
+    tags:
+      - { name: event_subscriber }
