@@ -120,6 +120,7 @@ module:
   schemata_json_schema: 0
   search: 0
   serialization: 0
+  session_limit: 0
   shortcut: 0
   simple_sitemap: 0
   slick: 0
