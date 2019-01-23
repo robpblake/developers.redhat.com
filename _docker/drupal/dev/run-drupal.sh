@@ -3,6 +3,7 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 cd $DIR && docker-compose down -v
+cd $DIR && rm -rf $DIR/drupal-workspace
 cd $DIR && docker-compose build --pull
 cd $DIR && mkcert localhost
 cd $DIR && docker-compose run --rm seed_env

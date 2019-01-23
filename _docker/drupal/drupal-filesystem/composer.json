@@ -134,7 +134,7 @@
           },
           "drupal/openid_connect": {
             "Change Keycloak LoginForm button text": "patches/change-keycloak-button-text.patch",
-            "Debug Complete Authorization Error": "patches/debugging-complete-authorization-error.patch"
+            "Add logging to openid_connect module": "patches/openid_connect_logging.patch"
           }
         }
     }
