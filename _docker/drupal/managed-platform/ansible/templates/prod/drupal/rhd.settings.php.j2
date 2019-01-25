@@ -37,6 +37,12 @@ $settings['trusted_host_patterns'] = [
 
 $config['simple_sitemap.settings']['base_url'] = "https://{{ drupal_url }}";
 
+#
+# Set the Akamai network that purge requests should go to
+#
+$config['akamai.settings']['domain']['production'] = true;
+$config['akamai.settings']['domain']['staging'] = false;
+
 // Get the specific config object, as an array, that we will use to set the
 // OpenID Config object.
 $content_editor_sso_config = $config["redhat_developers"]["keycloak"]["content_editor_sso"];

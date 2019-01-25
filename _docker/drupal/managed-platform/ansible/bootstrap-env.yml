@@ -21,6 +21,7 @@
       with_items:
       - '{{ work_dir }}'
       - '{{ drupal_dir }}/credentials'
+      - '{{ drupal_dir }}/apache'
 
     #
     # If drupal_s3_boostrap is true, then the environment will be boostrapped using the latest backups in S3. This is typically
@@ -163,6 +164,14 @@
       template:
         src: 'templates/{{ rhdp_environment }}/drupal/phinx.yml.j2'
         dest: '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/credentials/phinx.yml'
+        group: 'root'
+        mode: 0770
+        force: no
+
+    - name: Template drupal.conf for mounting into Drupal
+      template:
+        src: 'templates/common/apache/drupal.conf.j2'
+        dest: '/drupal-workspace/{{ drupal_deployment_dir }}/drupal/apache/drupal.conf'
         group: 'root'
         mode: 0770
         force: no

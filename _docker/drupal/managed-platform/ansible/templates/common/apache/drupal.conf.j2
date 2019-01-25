@@ -1,12 +1,17 @@
 # Setting drupal/web as the main location to host from
 <VirtualHost *:8080>
-    ServerName localhost
+    ServerName {{ drupal_url }}
+    ServerAlias {{ drupal_previous_url }}
+    ServerAlias {{ drupal_next_url }}
     RewriteEngine on
     RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R,L]
 </VirtualHost>
 
 <VirtualHost *:8443>
-    ServerName localhost
+    ServerName {{ drupal_url }}
+    ServerAlias {{ drupal_previous_url }}
+    ServerAlias {{ drupal_next_url }}
+
     DocumentRoot "/var/www/drupal/web"
     SSLEngine on
     SSLCertificateFile "/ssl/drupal.crt"

@@ -48,6 +48,7 @@ services:
     - DEPLOYMENT_ID=1
     volumes:
     - ./env.yml:/credentials/ansible/env.yml
+    - ./edgerc:/credentials/akamai/edgerc
     - ./drupal-workspace/drupal_1/drupal/credentials/rhd.settings.yml:/var/www/drupal/web/sites/default/rhd.settings.yml
     - ./drupal-workspace/drupal_1/drupal/credentials/rhd.settings.php:/var/www/drupal/web/sites/default/rhd.settings.php
     - ./drupal-workspace/drupal_1/drupal/credentials/phinx.yml:/var/www/drupal/phinx.yml
@@ -63,11 +64,13 @@ services:
     command: ["/bin/bash", "-c", "/var/www/drupal/run-httpd.sh"]
     user: root
     ports:
+      - "80:8080"
       - "443:8443"
     environment:
       - DEPLOYMENT_ID=1
     volumes:
       - ./env.yml:/credentials/ansible/env.yml
+      - ./edgerc:/credentials/akamai/edgerc
       - ./localhost.pem:/ssl/drupal.crt
       - ./localhost.pem:/etc/pki/ca-trust/source/anchors/RH-IT-pki-validation-chain.pem
       - ./localhost-key.pem:/ssl/drupal.key
@@ -75,6 +78,7 @@ services:
       - ./drupal-workspace/drupal_1/drupal/credentials/rhd.settings.php:/var/www/drupal/web/sites/default/rhd.settings.php
       - ./drupal-workspace/drupal_1/drupal/sites/default/files:/var/www/drupal/web/sites/default/files
       - ./drupal-workspace/drupal_1/drupal/credentials/phinx.yml:/var/www/drupal/phinx.yml
+      - ./drupal-workspace/drupal_1/drupal/apache/drupal.conf:/opt/rh/httpd24/root/etc/httpd/conf.d/drupal.conf
       - ./drupal-workspace/drupal_1/drupal/config/active:/var/www/drupal/web/config/active
       - ./drupal-workspace:/drupal-workspace
 

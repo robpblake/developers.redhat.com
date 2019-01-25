@@ -31,7 +31,16 @@ $settings['trusted_host_patterns'] = [
     '^{{ drupal_next_url }}'
 ];
 
+#
+# Set the base URL to be used when generating the sitemap.xml for this site
+#
 $config['simple_sitemap.settings']['base_url'] = "https://{{ drupal_url }}";
+
+#
+# Set the Akamai network that purge requests should go to
+#
+$config['akamai.settings']['domain']['production'] = false;
+$config['akamai.settings']['domain']['staging'] = true;
 
 // Get the specific config object, as an array, that we will use to set the
 // OpenID Config object.
