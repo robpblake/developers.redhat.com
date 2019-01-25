@@ -1,0 +1,83 @@
+diff --git a/src/Controller/ModerationSidebarController.php b/src/Controller/ModerationSidebarController.php
+index 50cc17e..f9ea66e 100644
+--- a/src/Controller/ModerationSidebarController.php
++++ b/src/Controller/ModerationSidebarController.php
+@@ -4,6 +4,7 @@ namespace Drupal\moderation_sidebar\Controller;
+ 
+ use Drupal\Component\Utility\Xss;
+ use Drupal\content_moderation\ModerationInformation;
++use Drupal\Core\Block\BlockManager;
+ use Drupal\Core\Controller\ControllerBase;
+ use Drupal\Core\Datetime\DateFormatterInterface;
+ use Drupal\Core\Entity\ContentEntityInterface;
+@@ -61,6 +62,13 @@ class ModerationSidebarController extends ControllerBase {
+    */
+   protected $localTaskManager;
+ 
++  /**
++   * The block manager.
++   *
++   * @var \Drupal\Core\Block\BlockManager
++   */
++  protected $blockManager;
++
+   /**
+    * Creates a ModerationSidebarController instance.
+    *
+@@ -74,13 +82,16 @@ class ModerationSidebarController extends ControllerBase {
+    *   The module handler service.
+    * @param \Drupal\Core\Menu\LocalTaskManagerInterface $local_task_manager
+    *   The local task manager.
++   * @param \Drupal\Core\Block\BlockManager $block_manager
++   *   The block manager.
+    */
+-  public function __construct(ModerationInformation $moderation_information, RequestStack $request_stack, DateFormatterInterface $date_formatter, ModuleHandlerInterface $module_handler, LocalTaskManagerInterface $local_task_manager) {
++  public function __construct(ModerationInformation $moderation_information, RequestStack $request_stack, DateFormatterInterface $date_formatter, ModuleHandlerInterface $module_handler, LocalTaskManagerInterface $local_task_manager, BlockManager $block_manager) {
+     $this->moderationInformation = $moderation_information;
+     $this->request = $request_stack->getCurrentRequest();
+     $this->dateFormatter = $date_formatter;
+     $this->moduleHandler = $module_handler;
+     $this->localTaskManager = $local_task_manager;
++    $this->blockManager = $block_manager;
+   }
+ 
+   /**
+@@ -121,12 +132,15 @@ class ModerationSidebarController extends ControllerBase {
+       $container->get('current_user')
+     );
+ 
++    $block_manager = $container->get('plugin.manager.block');
++
+     return new static(
+       $moderation_info,
+       $request_stack,
+       $container->get('date.formatter'),
+       $container->get('module_handler'),
+-      $local_task_manager
++      $local_task_manager,
++      $block_manager
+     );
+   }
+ 
+@@ -215,6 +229,21 @@ class ModerationSidebarController extends ControllerBase {
+         ];
+       }
+ 
++      // Display the Akamai cache clear block if present.
++      if ($this->moduleHandler->moduleExists('akamai')) {
++		$config = [];
++		$plugin_block = $this->blockManager->createInstance('akamai_cache_clear_block', $config);
++		$access_result = $plugin_block->access(\Drupal::currentUser());
++		// Return empty render array if user doesn't have access.
++		// $access_result can be boolean or an AccessResult class
++		if (is_object($access_result) && $access_result->isForbidden() || is_bool($access_result) && !$access_result) {
++		  return [];
++		}
++
++        // Add the render array for the Akamai block to the sidebar.
++        $build['actions']['akamai_cache_clear'] = $plugin_block->build();
++      }
++
+       // Show an edit link if this is the latest revision.
+       if ($is_latest && $entity->access('update')) {
+         $build['actions']['edit'] = [

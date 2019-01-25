@@ -134,6 +134,9 @@
           "drupal/inline_entity_form": {
             "Support entity reference revisions": "https://www.drupal.org/files/issues/support_entity_revision-2367235-92.patch"
           },
+          "drupal/moderation_sidebar": {
+            "Add Akamai block to moderation sidebar": "patches/add-akamai-block-to-sidebar.patch"
+          },
           "drupal/openid_connect": {
             "Change Keycloak LoginForm button text": "patches/change-keycloak-button-text.patch"
           }
