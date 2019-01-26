@@ -72,17 +72,18 @@
     - debug:
        var: phinx_migrate.stdout_lines
 
-    - name: Run Cron
-      shell: 'drush cron && touch {{ work_dir }}/drupal.cron.do.not.delete'
-      register: drush_cron
-      args:
-        chdir: '/var/www/drupal'
-        creates: "{{ work_dir }}/drupal.cron.do.not.delete"
-    - debug:
-        msg:
-          - "{{ drush_cron.stdout_lines }}"
-          - "{{ drush_cron.stderr_lines }}"
-      when: drush_cron.changed
-    - debug:
-        var: drush_cron.stdout_lines
-      when: not drush_cron.changed
+    - name: Check to see if cron has run
+      stat:
+        path: "{{ work_dir }}/drupal.cron.do.not.delete"
+      register: run_cron
+
+    - include: 'run-cron.yml'
+      when: run_cron.stat.exists == false
+
+    - name: Record that we have run cron
+      copy:
+        content: ""
+        dest: "{{ work_dir }}/drupal.cron.do.not.delete"
+        force: no
+        group: 'root'
+        mode: '0770'
