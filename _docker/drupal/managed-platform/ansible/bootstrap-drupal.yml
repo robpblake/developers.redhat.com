@@ -77,7 +77,7 @@
         path: "{{ work_dir }}/drupal.cron.do.not.delete"
       register: run_cron
 
-    - include: 'run-cron.yml'
+    - include: 'cron-tasks.yml'
       when: run_cron.stat.exists == false
 
     - name: Record that we have run cron
