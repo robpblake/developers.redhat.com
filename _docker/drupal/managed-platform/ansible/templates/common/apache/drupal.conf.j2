@@ -19,9 +19,14 @@
     SSLCertificateChainFile "/etc/pki/ca-trust/source/anchors/RH-IT-pki-validation-chain.pem"
 
     <Directory "/var/www/drupal/web">
+        AllowOverride None
         Options Indexes FollowSymLinks
-        AllowOverride All
         Require all granted
+
+        #
+        # Include specific .htaccess to avoid directory scanning
+        #
+        Include "/var/www/drupal/.htaccess"
 
         <IfModule mod_headers.c>
             Header unset link
@@ -33,5 +38,18 @@
             Header unset x-powered-by
             Header unset x-ua-compatible
         </IfModule>
+    </Directory>
+
+    <Directory "/var/www/drupal/web/config/sync">
+        AllowOverride None
+        #
+        # Include specific .htaccess to avoid directory scanning
+        #
+        Include "/var/www/drupal/web/config/sync/.htaccess"
+    </Directory>
+
+    <Directory "/var/www/drupal/web/sites/default/files">
+        AllowOverride None
+        Include "/var/www/drupal/.htaccess-files"
     </Directory>
 </VirtualHost>
