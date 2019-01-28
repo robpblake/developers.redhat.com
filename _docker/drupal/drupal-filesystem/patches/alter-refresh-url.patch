@@ -1,0 +1,19 @@
+diff --git a/src/Form/ClearUrlForm.php b/src/Form/ClearUrlForm.php
+index f0ff699..e424394 100644
+--- a/src/Form/ClearUrlForm.php
++++ b/src/Form/ClearUrlForm.php
+@@ -21,7 +21,13 @@ class ClearUrlForm extends FormBase {
+    * {@inheritdoc}
+    */
+   public function buildForm(array $form, FormStateInterface $form_state) {
+-    $current_uri = $this->getRequest()->getRequestUri();
++    $request_uri = $this->getRequest()->getRequestUri();
++    // We have to remove the /moderation-sidebar from the beginning of the relative URL.
++    $node_uri = str_replace('/moderation-sidebar', '', $request_uri);
++    // We do not need to flush the Akamai cache of the revision, but the actual node.
++    $node_uri_without_revision_id = str_replace('/latest', '', $node_uri);
++    // Remove the query parameters.
++    $current_uri = strtok($node_uri_without_revision_id, '?');
+ 
+     $form['path'] = [
+       '#type'  => 'hidden',
