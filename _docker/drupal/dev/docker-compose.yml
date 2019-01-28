@@ -71,9 +71,8 @@ services:
     volumes:
       - ./env.yml:/credentials/ansible/env.yml
       - ./edgerc:/credentials/akamai/edgerc
-      - ./localhost.pem:/ssl/drupal.crt
-      - ./localhost.pem:/etc/pki/ca-trust/source/anchors/RH-IT-pki-validation-chain.pem
-      - ./localhost-key.pem:/ssl/drupal.key
+      - ./localhost.pem:/ssl/tls.crt
+      - ./localhost-key.pem:/ssl/tls.key
       - ./drupal-workspace/drupal_1/drupal/credentials/rhd.settings.yml:/var/www/drupal/web/sites/default/rhd.settings.yml
       - ./drupal-workspace/drupal_1/drupal/credentials/rhd.settings.php:/var/www/drupal/web/sites/default/rhd.settings.php
       - ./drupal-workspace/drupal_1/drupal/sites/default/files:/var/www/drupal/web/sites/default/files

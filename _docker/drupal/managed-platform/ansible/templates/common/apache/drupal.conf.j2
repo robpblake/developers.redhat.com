@@ -14,9 +14,8 @@
 
     DocumentRoot "/var/www/drupal/web"
     SSLEngine on
-    SSLCertificateFile "/ssl/drupal.crt"
-    SSLCertificateKeyFile "/ssl/drupal.key"
-    SSLCertificateChainFile "/etc/pki/ca-trust/source/anchors/RH-IT-pki-validation-chain.pem"
+    SSLCertificateFile "/ssl/tls.crt"
+    SSLCertificateKeyFile "/ssl/tls.key"
 
     <Directory "/var/www/drupal/web">
         AllowOverride None
