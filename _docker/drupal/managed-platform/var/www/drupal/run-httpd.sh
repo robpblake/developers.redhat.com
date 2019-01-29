@@ -3,9 +3,6 @@ set -e
 
 trap "apachectl -k graceful-stop" TERM INT
 
-# This sleep seems to be required for certain Docker/OS combos as the bind mounts may not be fully ready
-#sleep 10
-
 rm -rf /opt/rh/httpd24/root/var/run/httpd/*
 
 # Launch Apache as a child-process of this script so we can 'wait' on it

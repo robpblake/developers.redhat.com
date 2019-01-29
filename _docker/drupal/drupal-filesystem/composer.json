@@ -141,7 +141,8 @@
             "Add Akamai block to moderation sidebar": "patches/add-akamai-block-to-sidebar.patch"
           },
           "drupal/openid_connect": {
-            "Change Keycloak LoginForm button text": "patches/change-keycloak-button-text.patch"
+            "Change Keycloak LoginForm button text": "patches/change-keycloak-button-text.patch",
+            "Add additional logging to OpenId authorisation": "patches/openid_connect/openid_connect.module-logging.patch"
           }
         }
     }
