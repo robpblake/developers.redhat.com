@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "942c5bbea4d667d77be7d3eb70217b07",
+    "content-hash": "1b53b49de5638f4ed9ce61dd38824816",
     "packages": [
         {
             "name": "acquia/lightning",
@@ -249,7 +249,7 @@
             "version": "v2.3.4",
             "source": {
                 "type": "git",
-                "url": "https://github.com/fengyuanchen/cropper.git",
+                "url": "git@github.com:fengyuanchen/cropper.git",
                 "reference": "30c58b29ee21010e17e58ebab165fbd84285c685"
             },
             "dist": {
@@ -303,7 +303,7 @@
             "version": "v1.8.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/kenwheeler/slick.git",
+                "url": "git@github.com:kenwheeler/slick.git",
                 "reference": "0f40c9d6a02a5c08b5f4dd80fdada3a854a59bee"
             },
             "dist": {
@@ -2231,6 +2231,9 @@
                     "services": {
                         "drush.services.yml": "^9"
                     }
+                },
+                "patches_applied": {
+                    "Alter Refresh URL": "patches/alter-refresh-url.patch"
                 }
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
