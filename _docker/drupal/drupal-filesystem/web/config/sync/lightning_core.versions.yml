@@ -150,3 +150,5 @@ imagecache_external: 1.0.0
 akamai: 3.0.0-alpha2
 session_limit: 1.0.0-beta3
 seckit: 1.1.0
+ban: 8.6.5
+login_security: 1.5.0
