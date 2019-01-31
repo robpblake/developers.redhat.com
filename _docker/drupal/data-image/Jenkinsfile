@@ -15,6 +15,10 @@ node('cic-rhd-01') {
                 echo "Starting the build for build number '${BUILD_NUMBER}'..."
                 checkout scm
             }
+
+            stage('Pull the Drupal Docker Image') {
+                sh "docker pull ${params.DRUPAL_IMAGE}"
+            }
         }
     } catch(e) {
         failure = e
