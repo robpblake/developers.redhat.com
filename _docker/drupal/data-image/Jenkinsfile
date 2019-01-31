@@ -7,6 +7,7 @@ properties([
 ])
 
 def failure
+def drupalImage = "registry.paas.redhat.com/rhdp/developer-drupal@sha256:${params.DRUPAL_IMAGE_SHA256}"
 
 node('cic-rhd-01') {
     try {
@@ -19,8 +20,23 @@ node('cic-rhd-01') {
                 }
 
                 stage('Pull the Drupal Docker Image') {
-                    sh "docker pull registry.paas.redhat.com/rhdp/developer-drupal@sha256:${params.DRUPAL_IMAGE_SHA256}"
+                    sh "docker pull ${drupalImage}"
                 }
+
+                withEnv(["DRUPAL_IMAGE=${drupalImage}"]) {
+                    stage('Bootstrap the environment') {
+                        sh 'docker-compose run --rm bootstrap_env'
+                    }
+
+                    stage('Bootstrap Drupal') {
+                        sh 'docker-compose run --rm bootstrap_drupal'
+                    }
+
+                    stage('Backup Drupal') {
+                        sh 'docker-composer run --rm backup_drupal'
+                    }
+                }
+
             }
         }
     } catch(e) {
@@ -28,7 +44,10 @@ node('cic-rhd-01') {
         currentBuild.result == 'FAILURE'
     } finally {
         stage('Clean up') {
-            sh 'ls /tmp'
+            sh 'docker-compose down -v'
+            sh 'rm -rf ./drupal-workspace'
+            sh 'rm -rf ./work'
+            sh "docker rmi -f ${drupalImage}"
         }
 
         if(failure != null) {

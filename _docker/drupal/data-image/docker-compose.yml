@@ -8,7 +8,7 @@ services:
     environment:
     - DEPLOYMENT_ID=1
     volumes:
-    - ./env.yml:/credentials/ansible/env.yml
+    - /credentials/data-image/env.yml:/credentials/ansible/env.yml
     - ./drupal-workspace:/drupal-workspace
     depends_on:
     - mysql
@@ -20,7 +20,7 @@ services:
     environment:
     - DEPLOYMENT_ID=1
     volumes:
-    - ./env.yml:/credentials/ansible/env.yml
+    - /credentials/data-image/env.yml:/credentials/ansible/env.yml
     - ./drupal-workspace/drupal_1/drupal/credentials/rhd.settings.yml:/var/www/drupal/web/sites/default/rhd.settings.yml
     - ./drupal-workspace/drupal_1/drupal/credentials/rhd.settings.php:/var/www/drupal/web/sites/default/rhd.settings.php
     - ./drupal-workspace/drupal_1/drupal/credentials/phinx.yml:/var/www/drupal/phinx.yml
@@ -38,7 +38,7 @@ services:
     environment:
       - DEPLOYMENT_ID=1
     volumes:
-      - ./env.yml:/credentials/ansible/env.yml
+      - /credentials/data-image/env.yml:/credentials/ansible/env.yml
       - ./drupal-workspace/drupal_1/drupal/credentials/rhd.settings.yml:/var/www/drupal/web/sites/default/rhd.settings.yml
       - ./drupal-workspace/drupal_1/drupal/credentials/rhd.settings.php:/var/www/drupal/web/sites/default/rhd.settings.php
       - ./drupal-workspace/drupal_1/drupal/config/active:/var/www/drupal/web/config/active
@@ -52,7 +52,5 @@ services:
     image: mariadb:10.3.9-bionic
     environment:
     - MYSQL_ROOT_PASSWORD=password
-    ports:
-    - "3306:3306"
     expose:
     - 3306
