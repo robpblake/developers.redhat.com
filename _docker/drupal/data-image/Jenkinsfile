@@ -7,6 +7,7 @@ properties([
 ])
 
 def failure
+def built = false
 def drupalImage = "registry.paas.redhat.com/rhdp/developer-drupal@sha256:${params.DRUPAL_IMAGE_SHA256}"
 def dataBuildName = "docker-registry.engineering.redhat.com/developers/drupal-data:$BUILD_NUMBER"
 def dataBuildNameLatest = 'docker-registry.engineering.redhat.com/developers/drupal-data:latest'
@@ -35,10 +36,12 @@ node('cic-rhd-01') {
 
                      stage('Backup Drupal') {
                          sh 'docker-compose run --rm backup_drupal'
+                         sh 'sudo chown -R vagrant:vagrant ./work'
                      }
 
                      stage('Build Docker Image') {
                          sh "docker build -t $dataBuildName -t $dataBuildNameLatest ."
+                         built = true
                      }
 
                      stage('Push Docker Image to Registry') {
@@ -58,7 +61,11 @@ node('cic-rhd-01') {
                 sh 'sudo rm -rf ./drupal-workspace'
                 sh 'sudo rm -rf ./work'
             }
-            sh "docker rmi -f ${drupalImage} ${dataBuildName} ${dataBuildNameLatest}"
+
+            sh "docker rmi -f ${drupalImage}"
+            if(built) {
+                sh "docker rmi -f ${dataBuildName} ${dataBuildNameLatest}"
+            }
         }
 
         if(failure != null) {
