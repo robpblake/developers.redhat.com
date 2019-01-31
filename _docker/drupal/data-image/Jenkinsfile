@@ -32,7 +32,7 @@ node('cic-rhd-01') {
                      }
 
                      stage('Backup Drupal') {
-                         sh 'docker-composer run --rm backup_drupal'
+                         sh 'docker-compose run --rm backup_drupal'
                      }
                  }
             }
