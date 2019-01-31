@@ -16,9 +16,9 @@ node('cic-rhd-01') {
                  checkout scm
                  dir('_docker/drupal/data-image') {
                      sh 'docker-compose down -v'
+                     sh 'rm -rf ./drupal-workspace'
+                     sh 'rm -rf ./work'
                  }
-                 sh 'rm -rf ./drupal-workspace'
-                 sh 'rm -rf ./work'
             }
 
             stage('Pull the Drupal Docker Image') {
@@ -50,9 +50,9 @@ node('cic-rhd-01') {
         stage('Clean up') {
             dir('_docker/drupal/data-image') {
                 sh 'docker-compose down -v'
+                sh 'rm -rf ./drupal-workspace'
+                sh 'rm -rf ./work'
             }
-            sh 'rm -rf ./drupal-workspace'
-            sh 'rm -rf ./work'
             sh "docker rmi -f ${drupalImage}"
         }
 
