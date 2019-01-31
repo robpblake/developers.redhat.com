@@ -2,7 +2,7 @@ properties([
     disableConcurrentBuilds(),
     [$class: 'HudsonNotificationProperty', enabled: false],
     [$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false],
-    [$class: 'ParametersDefinitionProperty', parameterDefinitions: [[$class: 'hudson.model.StringParameterDefinition', defaultValue: '', description: 'The SHA1 of the Drupal Docker image used to build the data images.', name: 'DRUPAL_IMAGE_SHA1']]],
+    [$class: 'ParametersDefinitionProperty', parameterDefinitions: [[$class: 'hudson.model.StringParameterDefinition', defaultValue: '', description: 'The SHA256 of the Drupal Docker image used to build the data images.', name: 'DRUPAL_IMAGE_SHA256']]],
     [$class: 'ThrottleJobProperty', categories: [], limitOneJobWithMatchingParams: false, maxConcurrentPerNode: 0, maxConcurrentTotal: 0, paramsToUseForLimit: '', throttleEnabled: false, throttleOption: 'project']
 ])
 
@@ -19,7 +19,7 @@ node('cic-rhd-01') {
                 }
 
                 stage('Pull the Drupal Docker Image') {
-                    sh "docker pull registry.paas.redhat.com/rhdp/developer-drupal@${params.DRUPAL_IMAGE_SHA1}"
+                    sh "docker pull registry.paas.redhat.com/rhdp/developer-drupal@sha256${params.DRUPAL_IMAGE_SHA256}"
                 }
             }
         }
