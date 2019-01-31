@@ -3,8 +3,8 @@ services:
   bootstrap_env:
     image: "${DRUPAL_IMAGE}"
     entrypoint: ["/bin/bash", "-c", "ansible-playbook bootstrap-env.yml"]
-    user: root
     working_dir: "/ansible"
+    user: root
     environment:
     - DEPLOYMENT_ID=1
     volumes:
@@ -17,6 +17,7 @@ services:
     image: "${DRUPAL_IMAGE}"
     command: ["/bin/bash", "-c", "ansible-playbook bootstrap-drupal.yml"]
     working_dir: "/ansible"
+    user: root
     environment:
     - DEPLOYMENT_ID=1
     volumes:
@@ -34,6 +35,7 @@ services:
       context: ../
       dockerfile: Dockerfile.mp
     command: ["/bin/bash", "-c", "ansible-playbook backup-drupal.yml"]
+    user: root
     working_dir: "/ansible"
     environment:
       - DEPLOYMENT_ID=1

@@ -12,7 +12,7 @@ def drupalImage = "registry.paas.redhat.com/rhdp/developer-drupal@sha256:${param
 node('cic-rhd-01') {
     try {
         timeout(30) {
-            stage('Checkout SCM and clean workspace') {
+            stage('Checkout SCM') {
                  checkout scm
             }
 
@@ -24,7 +24,6 @@ node('cic-rhd-01') {
                  dir('_docker/drupal/data-image') {
 
                      stage('Bootstrap the environment') {
-                         sh 'ls'
                          sh 'docker-compose run --rm bootstrap_env'
                      }
 
