@@ -19,7 +19,7 @@ node('cic-rhd-01') {
                 }
 
                 stage('Pull the Drupal Docker Image') {
-                    sh "docker pull registry.paas.redhat.com/rhdp/developer-drupal@sha256${params.DRUPAL_IMAGE_SHA256}"
+                    sh "docker pull registry.paas.redhat.com/rhdp/developer-drupal@sha256:${params.DRUPAL_IMAGE_SHA256}"
                 }
             }
         }
