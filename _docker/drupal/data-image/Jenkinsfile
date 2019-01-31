@@ -25,8 +25,10 @@ node('cic-rhd-01') {
 
                 withEnv(["DRUPAL_IMAGE=${drupalImage}"]) {
                     stage('Bootstrap the environment') {
-                        sh 'ls'
-                        sh 'docker-compose run --rm bootstrap_env'
+                        dir('_docker/drupal/data-image') {
+                            sh 'ls'
+                            sh 'docker-compose run --rm bootstrap_env'
+                        }
                     }
 
                     stage('Bootstrap Drupal') {
