@@ -25,6 +25,7 @@ node('cic-rhd-01') {
 
                 withEnv(["DRUPAL_IMAGE=${drupalImage}"]) {
                     stage('Bootstrap the environment') {
+                        sh 'echo $(pwd)'
                         sh 'docker-compose run --rm bootstrap_env'
                     }
 
@@ -36,7 +37,6 @@ node('cic-rhd-01') {
                         sh 'docker-composer run --rm backup_drupal'
                     }
                 }
-
             }
         }
     } catch(e) {
