@@ -21,3 +21,7 @@ dev/localhost.pem
 dev/localhost-key.pem
 dev/drupal-workspace
 dev/edgerc
+
+data-image/env.yml
+data-image/work
+data-image/drupal-workspace

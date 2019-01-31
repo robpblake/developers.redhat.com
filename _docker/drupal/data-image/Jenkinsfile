@@ -1,0 +1,46 @@
+pipeline {
+    agent { node { label 'cic-rhd-01' } }
+
+    options {
+        timeout(time: 30, unit: 'MINUTES'),
+        timestamps(),
+        disableConcurrentBuilds()
+    }
+
+    parameters {
+       string(name: DRUPAL_IMAGE, description: 'The Drupal Docker Image to use to build the data images')
+    }
+
+    environment {
+        DRUPAL_IMAGE="${params.DRUPAL_IMAGE}"
+    }
+
+    stages {
+
+        stage('Checkout scm') {
+            echo "Starting the build for '$BUILD_NUMBER'..."
+            checkout scm
+        }
+
+        stage('Pull the Drupal Docker Image') {
+            steps {
+                sh 'docker-compose pull'
+            }
+        }
+
+        stage('Bootstrap the environment') {
+            steps {
+                sh 'docker-compose run --rm bootstrap_env
+            }
+        }
+    }
+
+    post {
+        cleanup {
+            sh 'docker-compose down -v'
+            sh "docker rmi -f ${params.DRUPAL_IMAGE}"
+            sh 'rm -rf ./drupal-workspace'
+            sh 'rm -rf ./work'
+        }
+    }
+}

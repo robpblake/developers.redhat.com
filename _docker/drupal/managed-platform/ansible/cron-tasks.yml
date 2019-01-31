@@ -1,3 +1,6 @@
+#
+# List of tasks to run cron on Drupal via drush
+#
 ---
 - name: Run Cron
   shell: 'drush cron'
