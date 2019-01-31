@@ -2,7 +2,7 @@ properties([
     disableConcurrentBuilds(),
     [$class: 'HudsonNotificationProperty', enabled: false],
     [$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: false],
-    [$class: 'ParametersDefinitionProperty', parameterDefinitions: [[$class: 'hudson.model.StringParameterDefinition', defaultValue: '', description: 'The Drupal Docker image used to build the data images.', name: 'DRUPAL_IMAGE']]],
+    [$class: 'ParametersDefinitionProperty', parameterDefinitions: [[$class: 'hudson.model.StringParameterDefinition', defaultValue: '', description: 'The SHA1 of the Drupal Docker image used to build the data images.', name: 'DRUPAL_IMAGE_SHA1']]],
     [$class: 'ThrottleJobProperty', categories: [], limitOneJobWithMatchingParams: false, maxConcurrentPerNode: 0, maxConcurrentTotal: 0, paramsToUseForLimit: '', throttleEnabled: false, throttleOption: 'project']
 ])
 
@@ -11,13 +11,16 @@ def failure
 node('cic-rhd-01') {
     try {
         timeout(30) {
-            stage('Checkout SCM') {
-                echo "Starting the build for build number '${BUILD_NUMBER}'..."
-                checkout scm
-            }
 
-            stage('Pull the Drupal Docker Image') {
-                sh "docker pull ${params.DRUPAL_IMAGE}"
+            dir('_docker/drupal/data-image') {
+                stage('Checkout SCM') {
+                    echo "Starting the build for build number '${BUILD_NUMBER}'..."
+                    checkout scm
+                }
+
+                stage('Pull the Drupal Docker Image') {
+                    sh "docker pull registry.paas.redhat.com/rhdp/developer-drupal@${params.DRUPAL_IMAGE_SHA1}"
+                }
             }
         }
     } catch(e) {
@@ -27,5 +30,10 @@ node('cic-rhd-01') {
         stage('Clean up') {
             sh 'ls /tmp'
         }
+
+        if(failure != null) {
+            throw failure
+        }
+
     }
 }
