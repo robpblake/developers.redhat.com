@@ -8,6 +8,8 @@ properties([
 
 def failure
 def drupalImage = "registry.paas.redhat.com/rhdp/developer-drupal@sha256:${params.DRUPAL_IMAGE_SHA256}"
+def dataBuildName = "docker-registry.engineering.redhat.com/developers/drupal-data:$BUILD_NUMBER"
+def dataBuildNameLatest = 'docker-registry.engineering.redhat.com/developers/drupal-data:latest'
 
 node('cic-rhd-01') {
     try {
@@ -34,6 +36,15 @@ node('cic-rhd-01') {
                      stage('Backup Drupal') {
                          sh 'docker-compose run --rm backup_drupal'
                      }
+
+                     stage('Build Docker Image') {
+                         sh "docker build -t $dataBuildName -t $dataBuildNameLatest ."
+                     }
+
+                     stage('Push Docker Image to Registry') {
+                         sh "docker push $dataBuildName"
+                         sh "docker push $dataBuildNameLatest"
+                     }
                  }
             }
         }
@@ -47,7 +58,7 @@ node('cic-rhd-01') {
                 sh 'sudo rm -rf ./drupal-workspace'
                 sh 'sudo rm -rf ./work'
             }
-            sh "docker rmi -f ${drupalImage}"
+            sh "docker rmi -f ${drupalImage} ${dataBuildName} ${dataBuildNameLatest}"
         }
 
         if(failure != null) {
