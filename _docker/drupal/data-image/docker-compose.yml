@@ -31,9 +31,7 @@ services:
     - mysql
 
   backup_drupal:
-    build:
-      context: ../
-      dockerfile: Dockerfile.mp
+    image: "${DRUPAL_IMAGE}"
     command: ["/bin/bash", "-c", "ansible-playbook backup-drupal.yml"]
     user: root
     working_dir: "/ansible"
