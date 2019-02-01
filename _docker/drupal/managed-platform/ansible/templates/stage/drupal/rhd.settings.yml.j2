@@ -1,4 +1,4 @@
-environment: dev
+environment: stage
 broker: https://broker.staging.redhat.com/partner/drc/userMapping?redirect=
 downloadManager:
   baseUrl: 'https://developers.stage.redhat.com'
@@ -26,7 +26,7 @@ searchisko:
   protocol: 'https'
   host: dcp.stage.jboss.org
   port: "443"
-  baseProtocolRelativeUrl: 'dcp.stage.jboss.org:80'
+  baseProtocolRelativeUrl: 'dcp.stage.jboss.org:443'
 database:
   host: '{{ drupal_db_host }}'
   port: '3306'
