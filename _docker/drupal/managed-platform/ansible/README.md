@@ -49,4 +49,6 @@ The list of currently supported environments are:
 
 The [testing](testing) directory has been provided to test each of the playbooks. There is a `README.md` within each testing sub-directory that explains
 how to use the `docker-compose` environment locally to test the playbook.
+
+The testing directory also provides [cleanup-testing-envs.sh](testing/cleanup-testing-envs.sh) which is useful for ensuring that your local testing environment is clean.
   

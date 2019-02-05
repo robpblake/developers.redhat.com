@@ -5,13 +5,13 @@ This directory provides a `docker-compose` environment for testing the `bootstra
 To use this directory for testing, the following is required:
 
 ```bash
-docker-compose build
+docker-compose build --pull
 ```
 
 and then:
 
 ```bash
-docker-compose run --rm seed_env
+docker-compose run --rm local_seed
 ```
 
 This will ensure that you have the latest production DB dump and config in your development environment
@@ -45,7 +45,7 @@ To simulate a 2nd deployment, you just can just re-run the seed process and then
 environment variable `DRUPAL_DEPLOYMENT_ID` set to something else e.g:
 
 ```bash
-> docker-compose run --rm -e DRUPAL_DEPLOYMENT_ID=2 seed_env
+> docker-compose run --rm -e DRUPAL_DEPLOYMENT_ID=2 local_seed
 ```
 
 and then:

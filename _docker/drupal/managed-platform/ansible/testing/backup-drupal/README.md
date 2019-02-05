@@ -7,7 +7,7 @@ To get to the point where you can run the `backup-drupal.yml` Ansible playbook, 
 ```bash
 docker-compose pull
 docker-compose build
-docker-compose run --rm seed_env
+docker-compose run --rm local_seed
 docker-compose run --rm bootstrap_env
 ```
 
@@ -34,4 +34,6 @@ Assuming the above returns OK, you're good to run the backups:
 ansible-playbook backup-drupal.yml
 ```
 
-Backups will be stored into `/drupal-backups` on the container filesystem
+*Note:* By default nothing is pushed to S3 from the local dev environment. If you want to ensure that the S3 push is working, 
+you'll need to update [env.yml](../env.yml) with a valid S3 access token and bucket location. **DO NOT USE** the prod S3 bucket to test
+out backups or "bad things" will likely happen.
