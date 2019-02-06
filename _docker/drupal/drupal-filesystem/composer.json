@@ -57,9 +57,9 @@
         "drupal/publication_date": "2.x-dev",
         "drupal/twig_tweak": "^2.1",
         "drupal/imagecache_external": "1.x-dev#901b9b0a9cfd728e76da016b56757a24fc45fde0",
-        "drupal/readonlymode": "1.0",
-        "drupal/akamai": "3.0-alpha2",
+        "drupal/readonlymode": "^1.0",
         "drupal/session_limit": "^1.0@beta",
+        "drupal/akamai": "3.0-alpha2",
         "drupal/seckit": "1.1",
         "drupal/login_security" : "1.5"
     },
@@ -130,7 +130,7 @@
         "composer-exit-on-patch-failure": true,
         "patches": {
           "drupal/akamai": {
-            "Alter Refresh URL": "patches/alter-refresh-url.patch"
+            "Alter Refresh URL": "patches/akamai/alter-refresh-url.patch"
           },
           "drupal/core": {
             "Fix entity reference view": "https://www.drupal.org/files/issues/2018-03-09/drupal-use_view_output_for_entityreference_options-2174633-206.patch",
@@ -140,11 +140,11 @@
             "Support entity reference revisions": "https://www.drupal.org/files/issues/support_entity_revision-2367235-92.patch"
           },
           "drupal/moderation_sidebar": {
-            "Add Akamai block to moderation sidebar": "patches/add-akamai-block-to-sidebar.patch"
+            "Add Akamai block to moderation sidebar": "patches/moderation_sidebar/add-akamai-block-to-sidebar.patch"
           },
           "drupal/openid_connect": {
-            "Change Keycloak LoginForm button text": "patches/change-keycloak-button-text.patch",
-            "Add additional logging to OpenId authorisation": "patches/openid_connect/openid_connect.module-logging.patch"
+            "Change Keycloak LoginForm button text": "patches/openid_connect/change-keycloak-button-text.patch",
+            "Add logging to openid_connect to support SSO debug": "patches/openid_connect/openid_connect.module-logging.patch"
           }
         }
     }
