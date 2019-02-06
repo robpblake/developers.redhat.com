@@ -65,6 +65,9 @@
 //drupal admin override
 @import "drupal-user-login-form";
 
+// Drupal Akamai cache clear block styles
+@import "akamai-block";
+
 [data-rhd-grid="normal"] {
   display: flex;
   flex-direction: column;
