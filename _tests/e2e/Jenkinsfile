@@ -75,7 +75,7 @@ node('developer-docker') {
                 } finally {
                     archiveArtifacts artifacts: 'report/**', fingerprint: false, allowEmptyArchive: true
                     clean()
-                    cleanWs
+                    cleanWs()
                 }
             }
         }
