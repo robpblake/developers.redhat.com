@@ -3,7 +3,8 @@ import com.redhat.developer.pr.*
 
 properties ([
         parameters([
-                string(name: 'PULL_REQUEST_ID', description: 'The id of the pull request to run the tests for.', defaultValue: '')
+                string(name: 'PULL_REQUEST_ID', description: 'The id of the pull request to run the tests for.', defaultValue: ''),
+                string(name: 'PULL_REQUEST_SHA', description: 'The SHA of the commit that should be used to clone the pull request repository.', defaultValue: 'master')
         ])
 ])
 
