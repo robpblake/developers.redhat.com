@@ -18,7 +18,8 @@ def clean() {
     Some environment variables to support the tests.
  */
 def testBaseDockerImage = 'images.paas.redhat.com/rhdp/developer-testing-base:e2e'
-def urlToTest = "https://developer-preview-${params.PULL_REQUEST_ID}.ext.us-west.dc.preprod.paas.redhat.com"
+//def urlToTest = "https://developer-preview-${params.PULL_REQUEST_ID}.ext.us-west.dc.preprod.paas.redhat.com"
+def urlToTest="https://developer-preview-3358.ext.us-west.dc.preprod.paas.redhat.com"
 def composeProjectName = "e2e${params.PULL_REQUEST_ID}"
 
 if(!params.PULL_REQUEST_ID) {
