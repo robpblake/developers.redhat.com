@@ -11,7 +11,8 @@ ENTRYPOINT ["/home/e2e/wait-for-selenium.sh"]
 
 COPY package.json package-lock.json wait-for-selenium.sh ./
 RUN chown -R e2e:root /home/e2e \
-    && chmod -R 770 /home/e2e
+    && chmod -R 770 /home/e2e \
+    && chmod -R g+w /home/e2e/node_modules
 
 USER e2e
 RUN npm config set "registry" https://repository.engineering.redhat.com/nexus/repository/registry.npmjs.org/ \
