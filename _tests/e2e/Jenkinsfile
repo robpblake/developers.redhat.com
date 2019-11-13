@@ -19,17 +19,16 @@ node('developer-docker') {
 
     timeout(60) {
 
-        def uid
-
         stage('Checkout SCM') {
             checkout scm
-            uid = sh (
-                    script: 'id -u',
-                    returnStdout: true
-            ).trim()
         }
 
         dir('_tests/e2e') {
+
+            def uid = sh (
+                    script: 'id -u',
+                    returnStdout: true
+            ).trim()
 
             def env = [
                     "COMPOSE_PROJECT_NAME=${composeProjectName}",
