@@ -43,7 +43,9 @@ node('developer-docker') {
             def env = [
                     "COMPOSE_PROJECT_NAME=${composeProjectName}",
                     "DUID=${uid}",
-                    "RHD_BASE_URL=${urlToTest}"
+                    "RHD_BASE_URL=${urlToTest}",
+                    "RHD_DRUPAL_ADMIN_USERNAME=foo",
+                    "RHD_DRUPAL_ADMIN_PASSWORD=bar"
             ]
 
             withEnv(env) {
