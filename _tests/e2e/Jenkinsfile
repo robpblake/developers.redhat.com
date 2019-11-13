@@ -12,7 +12,6 @@ properties ([
  */
 def clean() {
     sh 'docker-compose down -v --remove-orphans --rmi local'
-    sh 'rm -rf tmp_downloads report'
 }
 
 /*
@@ -76,6 +75,7 @@ node('developer-docker') {
                 } finally {
                     archiveArtifacts artifacts: 'report/**', fingerprint: false, allowEmptyArchive: true
                     clean()
+                    cleanWs
                 }
             }
         }
