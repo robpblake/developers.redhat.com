@@ -67,9 +67,9 @@ node('developer-docker') {
                     withCredentials(credentials) {
 
                         def testToStatusMapping = [
-                                "e2e_desktop", "js-e2e-tests",
-                                "e2e_mobile", "js-mobile-e2e-tests",
-                                "e2e_drupal", "js-drupal-e2e-tests"
+                                e2e_desktop: "js-e2e-tests",
+                                e2e_mobile: "js-mobile-e2e-tests",
+                                e2e_drupal: "js-drupal-e2e-tests"
                         ]
 
                         testToStatusMapping.each({ test, status ->
