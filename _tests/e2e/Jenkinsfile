@@ -68,11 +68,8 @@ node('developer-docker') {
                                 "", ""
                         ]
 
-                        testToStatusMapping.each { test, status ->
-
-                            stage("Run Desktop Tests") {
+                        stage("Run Desktop Tests") {
                                 sh "docker-compose run --rm e2e_desktop"
-                            }
                         }
                     }
 
