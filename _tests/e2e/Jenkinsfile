@@ -7,6 +7,17 @@ properties ([
         ])
 ])
 
+/*
+    Ensures that the workspace and any containers are properly cleaned up before we start and after we complete a test run.
+ */
+def clean() {
+    sh 'docker-compose down -v --remove-orphans --rmi local'
+    sh 'rm -rf tmp_downloads report'
+}
+
+/*
+    Some environment variables to support the tests.
+ */
 def testBaseDockerImage = 'images.paas.redhat.com/rhdp/developer-testing-base:e2e'
 def urlToTest = "https://developer-preview-${params.PULL_REQUEST_ID}.ext.us-west.dc.preprod.paas.redhat.com"
 def composeProjectName = "e2e${params.PULL_REQUEST_ID}"
@@ -40,26 +51,34 @@ node('developer-docker') {
 
                 try {
                     stage('Build Docker Images') {
-                        sh 'rm -rf tmp_downloads report'
+                        clean()
                         sh 'mkdir tmp_downloads report'
                         sh "docker pull ${testBaseDockerImage}"
                         sh 'docker-compose build'
                         sh 'docker-compose up -d chrome'
                     }
 
-                    def testToStatusMapping = [
-                            "", ""
+                    def credentials = [
+                            usernamePassword(credentialsId: 'e2e-website-user-credentials', passwordVariable: 'RHD_KEYCLOAK_ADMIN_PASSWORD', usernameVariable: 'RHD_KEYCLOAK_ADMIN_USERNAME'),
                     ]
 
-                    testToStatusMapping.each { test, status ->
-//                        sh "docker-compose run --rm "
-                    }
+                    withCredentials(credentials) {
 
+                        def testToStatusMapping = [
+                                "", ""
+                        ]
+
+                        testToStatusMapping.each { test, status ->
+
+                            stage("Run Desktop Tests") {
+                                sh "docker-compose run --rm e2e_desktop"
+                            }
+                        }
+                    }
 
                 } finally {
                     archiveArtifacts artifacts: 'report/**', fingerprint: false, allowEmptyArchive: true
-                    sh 'docker-compose down -v --remove-orphans --rmi local'
-                    sh 'rm -rf tmp_downloads report'
+                    clean()
                 }
             }
         }
