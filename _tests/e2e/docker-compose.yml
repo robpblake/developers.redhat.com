@@ -5,6 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile.mp
     command: 'npm run e2e:ci-drupal -- --base-url=$${RHD_BASE_URL}'
+    user: "${DUID}:0"
     environment:
       - RHD_BASE_URL
       - RHD_DRUPAL_ADMIN_USERNAME
@@ -24,6 +25,7 @@ services:
       context: .
       dockerfile: Dockerfile.mp
     command: 'npm run e2e:ci-desktop -- --base-url=$${RHD_BASE_URL}'
+    user: "${DUID}:0"
     environment:
       - RHD_BASE_URL
       - RHD_DRUPAL_ADMIN_USERNAME
@@ -43,6 +45,7 @@ services:
       context: .
       dockerfile: Dockerfile.mp
     command: 'npm run e2e:ci-mobile -- --base-url=$${RHD_BASE_URL}'
+    user: "${DUID}:0"
     environment:
       - RHD_BASE_URL
       - RHD_DRUPAL_ADMIN_USERNAME

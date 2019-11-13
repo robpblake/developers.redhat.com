@@ -1,0 +1,65 @@
+@Library('RedHatDevelopersPipelineUtils')
+import com.redhat.developer.pr.*
+
+properties ([
+        parameters([
+                string(name: 'PULL_REQUEST_ID', description: 'The id of the pull request to run the tests for.', defaultValue: '')
+        ])
+])
+
+def testBaseDockerImage = 'images.paas.redhat.com/rhdp/developer-testing-base:e2e'
+def urlToTest = "https://developer-preview-${params.PULL_REQUEST_ID}.ext.us-west.dc.preprod.paas.redhat.com"
+def composeProjectName = "e2e${params.PULL_REQUEST_ID}"
+
+if(!params.PULL_REQUEST_ID) {
+    error "The PULL_REQUEST_ID parameter must be set."
+}
+
+node('developer-docker') {
+
+    timeout(60) {
+
+        def uid
+
+        stage('Checkout SCM') {
+            checkout scm
+            uid = sh
+        }
+
+        dir('_tests/e2e') {
+
+            def env = [
+                    "COMPOSE_PROJECT_NAME=${composeProjectName}",
+                    "DUID=${uid}",
+                    "RHD_BASE_URL=${urlToTest}"
+            ]
+
+            withEnv(env) {
+
+                try {
+                    stage('Build Docker Images') {
+                        sh 'rm -rf tmp_downloads report'
+                        sh 'mkdir tmp_downloads report'
+                        sh "docker pull ${testBaseDockerImage}"
+                        sh 'docker-compose build'
+                        sh 'docker-compose up -d chrome'
+                    }
+
+                    def testToStatusMapping = [
+                            "", ""
+                    ]
+
+                    testToStatusMapping.each { test, status ->
+//                        sh "docker-compose run --rm "
+                    }
+
+
+                } finally {
+                    archiveArtifacts artifacts: 'report/**', fingerprint: false, allowEmptyArchive: true
+                    sh 'docker-compose down -v --remove-orphans --rmi local'
+                    sh 'rm -rf tmp_downloads report'
+                }
+            }
+        }
+    }
+}
