@@ -4,7 +4,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.mp
-    command: 'npm run e2e:ci-drupal -- --base-url=$${RHD_BASE_URL}'
+    entrypoint: ["/bin/bash", "-c", "/uid_entrypoint.sh"]
+    command: '/home/e2e/wait-for-selenium.sh npm run e2e:ci-drupal -- --base-url=$${RHD_BASE_URL}'
     user: "${DUID}:0"
     environment:
       - RHD_BASE_URL
@@ -24,7 +25,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.mp
-    command: 'npm run e2e:ci-desktop -- --base-url=$${RHD_BASE_URL}'
+    entrypoint: ["/bin/bash", "-c", "/uid_entrypoint.sh"]
+    command: '/home/e2e/wait-for-selenium.sh npm run e2e:ci-desktop -- --base-url=$${RHD_BASE_URL}'
     user: "${DUID}:0"
     environment:
       - RHD_BASE_URL
@@ -44,7 +46,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.mp
-    command: 'npm run e2e:ci-mobile -- --base-url=$${RHD_BASE_URL}'
+    entrypoint: ["/bin/bash", "-c", "/uid_entrypoint.sh"]
+    command: '/home/e2e/wait-for-selenium.sh npm run e2e:ci-mobile -- --base-url=$${RHD_BASE_URL}'
     user: "${DUID}:0"
     environment:
       - RHD_BASE_URL
