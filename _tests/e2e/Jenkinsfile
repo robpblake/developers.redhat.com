@@ -21,6 +21,7 @@ def testBaseDockerImage = 'images.paas.redhat.com/rhdp/developer-testing-base:e2
 //def urlToTest = "https://developer-preview-${params.PULL_REQUEST_ID}.ext.us-west.dc.preprod.paas.redhat.com"
 def urlToTest="https://developer-preview-3358.ext.us-west.dc.preprod.paas.redhat.com"
 def composeProjectName = "e2e${params.PULL_REQUEST_ID}"
+def testsFailed = false
 
 if(!params.PULL_REQUEST_ID) {
     error "The PULL_REQUEST_ID parameter must be set."
@@ -44,9 +45,7 @@ node('developer-docker') {
             def env = [
                     "COMPOSE_PROJECT_NAME=${composeProjectName}",
                     "DUID=${uid}",
-                    "RHD_BASE_URL=${urlToTest}",
-                    "RHD_DRUPAL_ADMIN_USERNAME=foo",
-                    "RHD_DRUPAL_ADMIN_PASSWORD=bar"
+                    "RHD_BASE_URL=${urlToTest}"
             ]
 
             withEnv(env) {
@@ -62,23 +61,35 @@ node('developer-docker') {
 
                     def credentials = [
                             usernamePassword(credentialsId: 'e2e-website-user-credentials', passwordVariable: 'RHD_KEYCLOAK_ADMIN_PASSWORD', usernameVariable: 'RHD_KEYCLOAK_ADMIN_USERNAME'),
+                            usernamePassword(credentialsId: 'e2e-drupal-user-credentials', passwordVariable: 'RHD_DRUPAL_ADMIN_PASSWORD', usernameVariable: 'RHD_DRUPAL_ADMIN_USERNAME')
                     ]
 
                     withCredentials(credentials) {
 
                         def testToStatusMapping = [
-                                "", ""
+                                "e2e_desktop", "js-e2e-tests",
+                                "e2e_mobile", "js-mobile-e2e-tests",
+                                "e2e_drupal", "js-drupal-e2e-tests"
                         ]
 
-                        stage("Run Desktop Tests") {
-                                sh "docker-compose run --rm e2e_desktop"
-                        }
+                        testToStatusMapping.each({ test, status ->
+                            stage("Executing tests ${test}") {
+                                try{
+                                    sh "docker-compose run --rm ${test}"
+                                } catch(e) {
+                                    testsFailed = true
+                                }
+                            }
+                        })
                     }
 
                 } finally {
                     archiveArtifacts artifacts: 'report/**', fingerprint: false, allowEmptyArchive: true
                     clean()
-                    cleanWs()
+
+                    if(testsFailed) {
+                        currentBuild.result = "FAILURE"
+                    }
                 }
             }
         }
