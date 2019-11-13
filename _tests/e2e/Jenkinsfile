@@ -23,7 +23,10 @@ node('developer-docker') {
 
         stage('Checkout SCM') {
             checkout scm
-            uid = sh
+            uid = sh (
+                    script: 'id -u',
+                    returnStdout: true
+            ).trim()
         }
 
         dir('_tests/e2e') {
