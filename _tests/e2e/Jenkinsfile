@@ -12,6 +12,7 @@ properties ([
     Ensures that the workspace and any containers are properly cleaned up before we start and after we complete a test run.
  */
 def clean() {
+    sh 'rm -rf tmp_downloads report'
     sh 'docker-compose down -v --remove-orphans --rmi local'
 }
 
@@ -70,7 +71,7 @@ node('developer-docker') {
                 try {
                     stage('Build Docker Images') {
                         clean()
-                        sh 'mkdir tmp_downloads report'
+                        sh 'mkdir tmp_downloads report && chmod -R 777 tmp_downloads'
                         sh "docker pull ${testBaseDockerImage}"
                         sh 'docker-compose build'
                         sh 'docker-compose up -d chrome'

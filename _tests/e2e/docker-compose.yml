@@ -15,7 +15,6 @@ services:
       - GRID_HOST=chrome
       - GRID_PORT=4444
     volumes:
-      - ./tmp_downloads:/home/e2e/tmp_downloads
       - ./report:/home/e2e/report
     depends_on:
       - chrome
