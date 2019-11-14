@@ -98,7 +98,7 @@ node('developer-docker') {
                                     testsFailed = true
                                 }
                             } else {
-                                echo "Cannot locate required status check '${status} on pull request '${params.PULL_REQUEST_ID}' at SHA '${params.PULL_REQUEST_SHA}'. Failing tests."
+                                echo "Cannot locate required status check '${status}' on pull request '${params.PULL_REQUEST_ID}' at SHA '${params.PULL_REQUEST_SHA}'. Failing tests."
                                 testsFailed = true
                             }
                         })
