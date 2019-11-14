@@ -7,6 +7,7 @@ class ProductOverview extends Page {
 
     open(productCode, tab) {
         super.open(`/products/${productCode}/${tab}`.toString());
+        Driver.awaitIsDisplayed(this.downloadBtn)
         return this;
     }
 
