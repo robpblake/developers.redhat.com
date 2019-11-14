@@ -11,6 +11,10 @@ export default class Driver {
         }
     }
 
+    static screenShot(filename) {
+        browser.saveScreenshot(filename);
+    }
+
     static enter() {
         return this.key("\uE007");
     }
