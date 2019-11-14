@@ -89,6 +89,8 @@ node('developer-docker') {
 
                             def prStatus = pullRequest.statuses[status]
 
+                            echo "Running tests for status '${status}'..."
+
                             if(prStatus) {
                                 try {
                                     forStatus(status: prStatus, failureUrl: "${env.BUILD_URL}", successUrl: "${env.BUILD_URL}/artifact/report/drupal-report/index.html") {
@@ -96,6 +98,7 @@ node('developer-docker') {
                                     }
                                 } catch(e) {
                                     testsFailed = true
+                                    throw e
                                 }
                             } else {
                                 echo "Cannot locate required status check '${status}' on pull request '${params.PULL_REQUEST_ID}' at SHA '${params.PULL_REQUEST_SHA}'. Failing tests."
