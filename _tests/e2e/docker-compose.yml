@@ -1,6 +1,6 @@
 version: '2'
 services:
-  e2e_drupal:
+  drupal:
     build:
       context: .
       dockerfile: Dockerfile.mp
@@ -20,7 +20,7 @@ services:
     depends_on:
       - chrome
 
-  e2e_desktop:
+  desktop:
     build:
       context: .
       dockerfile: Dockerfile.mp
@@ -40,7 +40,7 @@ services:
     depends_on:
       - chrome
 
-  e2e_mobile:
+  mobile:
     build:
       context: .
       dockerfile: Dockerfile.mp

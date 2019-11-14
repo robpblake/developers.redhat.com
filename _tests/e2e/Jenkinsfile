@@ -80,20 +80,23 @@ node('developer-docker') {
                     withCredentials(credentials) {
 
                         def testToStatusMapping = [
-                                e2e_desktop: "js-e2e-tests",
-                                e2e_mobile: "js-mobile-e2e-tests",
-                                e2e_drupal: "js-drupal-e2e-tests"
+                                desktop: "js-e2e-tests",
+                                mobile: "js-mobile-e2e-tests",
+                                drupal: "js-drupal-e2e-tests"
                         ]
 
                         testToStatusMapping.each({ test, status ->
 
                             def prStatus = pullRequest.statuses[status]
 
-                            echo "Running tests for status '${status}'..."
+                            echo "Running '${test}' tests and reporting results to status '${status}'..."
 
                             if(prStatus) {
+
+                                def targetUrl = "${env.BUILD_URL}/artifact/report/${test}-report/index.html"
+
                                 try {
-                                    forStatus(status: prStatus, failureUrl: "${env.BUILD_URL}", successUrl: "${env.BUILD_URL}/artifact/report/drupal-report/index.html") {
+                                    forStatus(status: prStatus, failureUrl: targetUrl, successUrl: targetUrl) {
                                         sh "docker-compose run --rm ${test}"
                                     }
                                 } catch(e) {
