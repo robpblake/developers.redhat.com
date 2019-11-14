@@ -101,7 +101,6 @@ node('developer-docker') {
                                     }
                                 } catch(e) {
                                     testsFailed = true
-                                    throw e
                                 }
                             } else {
                                 echo "Cannot locate required status check '${status}' on pull request '${params.PULL_REQUEST_ID}' at SHA '${params.PULL_REQUEST_SHA}'. Failing tests."
