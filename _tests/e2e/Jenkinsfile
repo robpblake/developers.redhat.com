@@ -34,6 +34,8 @@ if(!params.PULL_REQUEST_SHA) {
 
 node('developer-docker') {
 
+    echo "Executing e2e tests for pull request '${params.PULL_REQUEST_ID}' using SHA '${params.PULL_REQUEST_SHA}'. The tests will execute against: '${urlToTest}'."
+
     timeout(60) {
 
         def pullRequest
@@ -84,12 +86,20 @@ node('developer-docker') {
                         ]
 
                         testToStatusMapping.each({ test, status ->
-                            stage("Executing tests ${test}") {
-                                try{
-                                    sh "docker-compose run --rm ${test}"
+
+                            def prStatus = pullRequest.statuses[status]
+
+                            if(prStatus) {
+                                try {
+                                    forStatus(status: prStatus, failureUrl: "${env.BUILD_URL}", successUrl: "${env.BUILD_URL}/artifact/report/drupal-report/index.html") {
+                                        sh "docker-compose run --rm ${test}"
+                                    }
                                 } catch(e) {
                                     testsFailed = true
                                 }
+                            } else {
+                                echo "Cannot locate required status check '${status} on pull request '${params.PULL_REQUEST_ID}' at SHA '${params.PULL_REQUEST_SHA}'. Failing tests."
+                                testsFailed = true
                             }
                         })
                     }
