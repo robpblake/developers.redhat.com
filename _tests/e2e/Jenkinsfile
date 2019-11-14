@@ -4,7 +4,7 @@ import com.redhat.developer.pr.*
 properties ([
         parameters([
                 string(name: 'PULL_REQUEST_ID', description: 'The id of the pull request to run the tests for.', defaultValue: ''),
-                string(name: 'PULL_REQUEST_SHA', description: 'The SHA of the commit that should be used to clone the pull request repository.', defaultValue: 'master')
+                string(name: 'PULL_REQUEST_SHA', description: 'The SHA of the commit that should be used to clone the pull request repository.', defaultValue: '')
         ])
 ])
 
@@ -28,9 +28,19 @@ if(!params.PULL_REQUEST_ID) {
     error "The PULL_REQUEST_ID parameter must be set."
 }
 
+if(!params.PULL_REQUEST_SHA) {
+    error "The SHA at which to run the tests must be set."
+}
+
 node('developer-docker') {
 
     timeout(60) {
+
+        def pullRequest
+
+        withCredentials(usernamePassword(credentialsId: 'rblake-github-api-token', passwordVariable: 'GITHUB_API_TOKEN', usernameVariable: 'GITHUB_USERNAME')) {
+            pullRequest = continuePullRequest(gitApiToken: "${GITHUB_API_TOKEN}", gitRepository: 'https://github.com/robpblake/developers.redhat.com', pullRequestId: params.PULL_REQUEST_ID)
+        }
 
         stage('Checkout SCM') {
             checkout scm
