@@ -14,7 +14,9 @@ class ProductOverview extends Page {
     }
 
     download() {
-        return Driver.click(this.downloadBtn);
+        Driver.click(this.downloadBtn);
+        Driver.screenShot('where-are-we.png');
+        return this;
     }
 
     awaitDownloadThankYou() {
