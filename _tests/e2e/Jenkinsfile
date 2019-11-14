@@ -44,7 +44,6 @@ node('developer-docker') {
             pullRequest = continuePullRequest(gitApiToken: "${GITHUB_API_TOKEN}", gitRepository: 'https://github.com/robpblake/developers.redhat.com', pullRequestId: params.PULL_REQUEST_ID)
 
             if(pullRequest.branchSha != params.PULL_REQUEST_SHA) {
-                pullRequest.failed('Git SHA is out-of-date.')
                 error "The tip of the branch for pull request is now at SHA '${pullRequest.branchSha}', but you are requesting to use SHA '${params.PULL_REQUEST_SHA}'. You're out of date!"
             }
         }
