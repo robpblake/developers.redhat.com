@@ -38,7 +38,7 @@ node('developer-docker') {
 
         def pullRequest
 
-        withCredentials(usernamePassword(credentialsId: 'rblake-github-api-token', passwordVariable: 'GITHUB_API_TOKEN', usernameVariable: 'GITHUB_USERNAME')) {
+        withCredentials([usernamePassword(credentialsId: 'rblake-github-api-token', passwordVariable: 'GITHUB_API_TOKEN', usernameVariable: 'GITHUB_USERNAME')]) {
             pullRequest = continuePullRequest(gitApiToken: "${GITHUB_API_TOKEN}", gitRepository: 'https://github.com/robpblake/developers.redhat.com', pullRequestId: params.PULL_REQUEST_ID)
         }
 
