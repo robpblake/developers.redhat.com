@@ -28,6 +28,7 @@ class Login extends Page {
     }
 
     with(user, password) {
+        this.awaitLogin()
         Driver.type(user, this.usernameField);
         Driver.click(this.nextBtn);
         this.awaitStepTwo();
