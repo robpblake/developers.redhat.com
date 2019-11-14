@@ -55,13 +55,13 @@ node('developer-docker') {
                     returnStdout: true
             ).trim()
 
-            def env = [
+            def testEnv = [
                     "COMPOSE_PROJECT_NAME=${composeProjectName}",
                     "DUID=${uid}",
                     "RHD_BASE_URL=${urlToTest}"
             ]
 
-            withEnv(env) {
+            withEnv(testEnv) {
 
                 try {
                     stage('Build Docker Images') {
