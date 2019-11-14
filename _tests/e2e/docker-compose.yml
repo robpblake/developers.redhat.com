@@ -61,7 +61,7 @@ services:
       - chrome
 
   chrome:
-    image: selenium/standalone-chrome:3.141.0-actinium
+    image: selenium/standalone-chrome:3.141.59-xenon
     volumes:
       - /dev/shm:/dev/shm
       - ./tmp_downloads:/home/e2e/tmp_downloads
