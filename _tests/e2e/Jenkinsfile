@@ -20,8 +20,7 @@ def clean() {
     Some environment variables to support the tests.
  */
 def testBaseDockerImage = 'images.paas.redhat.com/rhdp/developer-testing-base:e2e'
-//def urlToTest = "https://developer-preview-${params.PULL_REQUEST_ID}.ext.us-west.dc.preprod.paas.redhat.com"
-def urlToTest="https://developer-preview-3360.ext.us-west.dc.preprod.paas.redhat.com"
+def urlToTest = "https://developer-preview-${params.PULL_REQUEST_ID}.ext.us-west.dc.preprod.paas.redhat.com"
 def composeProjectName = "e2e${params.PULL_REQUEST_ID}"
 def testsFailed = false
 
@@ -41,8 +40,8 @@ node('developer-docker') {
 
         def pullRequest
 
-        withCredentials([usernamePassword(credentialsId: 'rblake-github-api-token', passwordVariable: 'GITHUB_API_TOKEN', usernameVariable: 'GITHUB_USERNAME')]) {
-            pullRequest = continuePullRequest(gitApiToken: "${GITHUB_API_TOKEN}", gitRepository: 'https://github.com/robpblake/developers.redhat.com', pullRequestId: params.PULL_REQUEST_ID)
+        withCredentials([usernamePassword(credentialsId: 'redhat-developer-ci-github-api-token', passwordVariable: 'GITHUB_API_TOKEN', usernameVariable: 'GITHUB_USERNAME')]) {
+            pullRequest = continuePullRequest(gitApiToken: "${GITHUB_API_TOKEN}", gitRepository: 'https://github.com/redhat-developer/developers.redhat.com', pullRequestId: params.PULL_REQUEST_ID)
 
             if(pullRequest.branchSha != params.PULL_REQUEST_SHA) {
                 error "The tip of the branch for pull request '${params.PULL_REQUEST_ID}' is now at SHA '${pullRequest.branchSha}', but you are requesting to use SHA '${params.PULL_REQUEST_SHA}'. You're out of date!"
