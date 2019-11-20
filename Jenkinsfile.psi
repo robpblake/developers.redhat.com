@@ -24,8 +24,9 @@ node {
             }
         }
 
-        def cause = "${env.ghprbActualCommit}-${env.BUILD_NUMBER}"
-        def context = env.ghprbCommentBody ? env.ghprbCommentBody.toString().trim() : ''
+        //def cause = "${env.ghprbActualCommit}-${env.BUILD_NUMBER}"
+        def cause = "6186a2fb89b181d5c8b7e338f10a22af62c2549e-${env.BUILD_NUMBER}"
+        def context = env.ghprbCommentBody ? env.ghprbCommentBody.toString().trim() : ""
         def credentials = [
             usernamePassword(credentialsId: 'developers-redhat-com-automated-api-token', passwordVariable: 'JENKINS_USER_PASSWORD', usernameVariable: 'JENKINS_USER'),
             usernamePassword(credentialsId: 'redhat-developer-ci-github-api-token', passwordVariable: 'GITHUB_USER_PASSWORD', usernameVariable: 'GITHUB_USER')
@@ -38,17 +39,13 @@ node {
                 defined as the current HEAD reference of the PR branch and then the current build number
              */
             def jenkinsJob = "https://jenkins.paas.redhat.com/generic-webhook-trigger/invoke?token=rhdp-pr-build"
-            echo "Here I would schedule the job for pr '${env.ghprbPullId}' at SHA '${env.ghprbActualCommit}' with cause '${cause}' and context '${context}'."
-
-
-            // scheduleMpBuild(pullRequestId: "${env.ghprbPullId}", cause: cause, jenkinsJob: jenkinsJob, jenkinsUser: env.JENKINS_USER, jenkinsPassword: env.JENKINS_USER_PASSWORD, context: context)
+            scheduleMpBuild(pullRequestId: "3390", cause: cause, jenkinsJob: jenkinsJob, jenkinsUser: env.JENKINS_USER, jenkinsPassword: env.JENKINS_USER_PASSWORD, context: context)
 
             /*
                 And then we wait for that build to appear to be running on jenkins.paas.redhat.com. In particular we're waiting to see the above cause appear on the list
                 of statuses for our pull request.
              */
-            // waitForMpBuildToStart(gitRepository: 'redhat-developer/developers.redhat.com', pullRequestRef: "${env.ghprbActualCommit}", cause: cause, gitApiCredentials: env.GITHUB_USER_PASSWORD)
-            echo "And here we would wait for the build...."
+            waitForMpBuildToStart(gitRepository: 'redhat-developer/developers.redhat.com', pullRequestRef: "6186a2fb89b181d5c8b7e338f10a22af62c2549e", cause: cause, gitApiCredentials: env.GITHUB_USER_PASSWORD)
         }
     }
 }
