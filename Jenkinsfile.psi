@@ -48,7 +48,7 @@ node {
                 of statuses for our pull request.
              */
             // waitForMpBuildToStart(gitRepository: 'redhat-developer/developers.redhat.com', pullRequestRef: "${env.ghprbActualCommit}", cause: cause, gitApiCredentials: env.GITHUB_USER_PASSWORD)
-            echo "And here we would wait for the build..."
+            echo "And here we would wait for the build...."
         }
     }
 }
